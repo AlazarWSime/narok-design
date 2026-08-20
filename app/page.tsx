@@ -64,20 +64,20 @@ export default function Home() {
         <a href="#services">Discover our services</a>
       </div>
 
-      <section className="hero">
-        <header className="site-header">
-          <button className="header-action menu-trigger" onClick={() => setMenuOpen(true)} aria-label="Open menu">
-            <span className="menu-lines" aria-hidden="true"><i /><i /></span> Menu
+      <header className="site-header">
+        <button className="header-action menu-trigger" onClick={() => setMenuOpen(true)} aria-label="Open menu">
+          <span className="menu-lines" aria-hidden="true"><i /><i /></span> Menu
+        </button>
+        <a className="wordmark" href="#top" aria-label="Maison Lueur home">MAISON LUEUR</a>
+        <div className="header-actions">
+          <button className="header-action" onClick={() => setSearchOpen(true)} aria-label="Search">Search</button>
+          <button className="header-action" onClick={() => setCartOpen(true)} aria-label={`Shopping bag with ${bag.length} items`}>
+            Bag <span>{bag.length}</span>
           </button>
-          <a className="wordmark" href="#top" aria-label="Maison Lueur home">MAISON LUEUR</a>
-          <div className="header-actions">
-            <button className="header-action" onClick={() => setSearchOpen(true)} aria-label="Search">Search</button>
-            <button className="header-action" onClick={() => setCartOpen(true)} aria-label={`Shopping bag with ${bag.length} items`}>
-              Bag <span>{bag.length}</span>
-            </button>
-          </div>
-        </header>
+        </div>
+      </header>
 
+      <section className="hero">
         <div className="hero-shade" />
         <div className="hero-content">
           <p className="eyebrow">The new campaign</p>

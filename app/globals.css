@@ -23,14 +23,14 @@ img { display: block; width: 100%; }
 
 .hero { position: relative; min-height: calc(100svh - 34px); color: white; overflow: hidden; background: #3c372f url("/maison-lueur-hero.png") center 35% / cover no-repeat; }
 .hero-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.48), rgba(0,0,0,.03) 38%, rgba(0,0,0,.64)); }
-.site-header { position: relative; z-index: 2; height: 92px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 4vw; border-bottom: 1px solid rgba(255,255,255,.27); transition: color .25s ease, background-color .25s ease, border-color .25s ease; }
+.site-header { position: sticky; z-index: 15; top: 0; height: 92px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; margin-bottom: -92px; padding: 0 4vw; color: white; background: transparent; border-bottom: 1px solid rgba(255,255,255,.27); transition: color .25s ease, background-color .25s ease, border-color .25s ease, box-shadow .25s ease; }
 .wordmark { font-size: clamp(18px, 2.15vw, 31px); font-weight: 700; letter-spacing: .2em; text-decoration: none; white-space: nowrap; }
 .header-actions { display: flex; justify-content: flex-end; gap: 23px; }
 .header-action { display: inline-flex; align-items: center; gap: 9px; padding: 8px; color: white; background: none; border: 0; cursor: pointer; font-size: 11px; text-transform: uppercase; letter-spacing: .12em; transition: color .25s ease; }
 .header-action > span:not(.menu-lines) { display: inline-grid; place-items: center; min-width: 20px; aspect-ratio: 1; border: 1px solid rgba(255,255,255,.7); border-radius: 50%; font-size: 9px; }
 .menu-lines { width: 19px; display: flex; flex-direction: column; gap: 5px; }
 .menu-lines i { width: 100%; height: 1px; display: block; background: currentColor; }
-.site-header:hover, .site-header:focus-within { color: var(--ink); background-color: white; border-color: rgba(17,16,15,.16); }
+.site-header:hover, .site-header:focus-within { color: var(--ink); background-color: white; border-color: rgba(17,16,15,.16); box-shadow: 0 1px 0 rgba(17,16,15,.05); }
 .site-header:hover .header-action, .site-header:focus-within .header-action { color: var(--ink); }
 .site-header:hover .header-action > span:not(.menu-lines), .site-header:focus-within .header-action > span:not(.menu-lines) { border-color: rgba(17,16,15,.55); }
 .hero-content { position: absolute; z-index: 1; left: 50%; bottom: 10vh; width: min(780px, 88vw); text-align: center; transform: translateX(-50%); }
@@ -175,7 +175,7 @@ footer h2 { max-width: 650px; font-size: clamp(39px, 4.5vw, 67px); }
   .announcement { height: 30px; padding: 0 12px; white-space: nowrap; overflow: hidden; font-size: 8px; }
   .announcement a { display: none; }
   .hero { min-height: calc(100svh - 30px); background-position: 52% center; }
-  .site-header { height: 70px; padding: 0 16px; }
+  .site-header { height: 70px; margin-bottom: -70px; padding: 0 16px; }
   .menu-trigger { font-size: 0; }
   .menu-lines { width: 22px; }
   .header-actions { gap: 0; }
