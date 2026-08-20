@@ -17,14 +17,14 @@ export async function generateMetadata(): Promise<Metadata> {
   const requestHeaders = await headers();
   const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host") ?? "localhost:3000";
   const protocol = requestHeaders.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
-  const image = `${protocol}://${host}/og.png`;
-  const title = "NAROK DESIGN — The Art of the Journey";
-  const description = "Narok Design presents a contemporary vision of leather, fashion, fragrance and the art of travel.";
+  const image = `${protocol}://${host}/og-narok.png`;
+  const title = "NAROK DESIGN — Ethiopian Heritage, Made for the World";
+  const description = "Traditional Ethiopian clothing for women, men and children, designed in Addis Ababa and available ready-made or made to order.";
 
   return {
     title,
     description,
-    openGraph: { title, description, type: "website", images: [{ url: image, width: 1792, height: 928, alt: "Narok Design — Horizons in Motion" }] },
+    openGraph: { title, description, type: "website", images: [{ url: image, width: 1536, height: 1024, alt: "NAROK DESIGN — Ethiopian Heritage, Made for the World" }] },
     twitter: { card: "summary_large_image", title, description, images: [image] },
   };
 }
