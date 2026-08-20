@@ -11,7 +11,7 @@ const products = [
     tone: "sand",
   },
   {
-    name: "Lueur No. 7",
+    name: "Narok No. 7",
     detail: "Eau de parfum · 100 ml",
     price: "$320",
     image: "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=1200&q=90",
@@ -86,7 +86,7 @@ export default function Home() {
         <button className="header-action menu-trigger" onClick={() => setMenuOpen(true)} aria-label="Open menu">
           <span className="menu-lines" aria-hidden="true"><i /><i /></span> Menu
         </button>
-        <a className="wordmark" href="#top" aria-label="Maison Lueur home">MAISON LUEUR</a>
+        <a className="wordmark" href="#top" aria-label="Narok Design home">NAROK DESIGN</a>
         <div className="header-actions">
           <button className="header-action" onClick={() => setSearchOpen(true)} aria-label="Search">Search</button>
           <button className="header-action" onClick={() => setCartOpen(true)} aria-label={`Shopping bag with ${bag.length} items`}>
@@ -163,7 +163,7 @@ export default function Home() {
 
       <section className="journal" id="journal">
         <div className="section-heading left-heading">
-          <p className="eyebrow dark">Maison stories</p>
+          <p className="eyebrow dark">Narok Design stories</p>
           <h2>The journal</h2>
         </div>
         <div className="editorial-grid">
@@ -182,7 +182,7 @@ export default function Home() {
 
       <section className="services" id="services">
         <div className="section-heading">
-          <p className="eyebrow dark">The Maison at your service</p>
+          <p className="eyebrow dark">Narok Design at your service</p>
           <h2>A considered experience</h2>
         </div>
         <div className="service-grid">
@@ -195,7 +195,7 @@ export default function Home() {
       <footer>
         <div className="footer-top">
           <div>
-            <p className="eyebrow">The Lueur letter</p>
+            <p className="eyebrow">The Narok Design letter</p>
             <h2>Stories, objects and invitations.</h2>
           </div>
           {subscribed ? (
@@ -209,25 +209,24 @@ export default function Home() {
         </div>
         <div className="footer-links">
           <div><h3>Client services</h3><a href="#services">Contact us</a><a href="#services">Delivery & returns</a><a href="#services">Book an appointment</a></div>
-          <div><h3>The Maison</h3><a href="#story">Our story</a><a href="#story">Craftsmanship</a><a href="#journal">Journal</a></div>
+          <div><h3>Narok Design</h3><a href="#story">Our story</a><a href="#story">Craftsmanship</a><a href="#journal">Journal</a></div>
           <div><h3>Follow</h3><a href="#top">Instagram</a><a href="#top">Pinterest</a><a href="#top">WeChat</a></div>
           <div className="locale"><h3>Shipping to</h3><button>United States · EN <span>⌄</span></button></div>
         </div>
-        <div className="footer-bottom"><a className="wordmark" href="#top">MAISON LUEUR</a><p>© 2026 Maison Lueur</p><div><a href="#top">Privacy</a><a href="#top">Legal</a><a href="#top">Accessibility</a></div></div>
+        <div className="footer-bottom"><a className="wordmark" href="#top">NAROK DESIGN</a><p>© 2026 Narok Design</p><div><a href="#top">Privacy</a><a href="#top">Legal</a><a href="#top">Accessibility</a></div></div>
       </footer>
 
       <div className={`panel-backdrop ${menuOpen || searchOpen || cartOpen ? "visible" : ""}`} onClick={() => { setMenuOpen(false); setSearchOpen(false); setCartOpen(false); }} />
 
       <aside className={`side-panel menu-panel ${menuOpen ? "open" : ""}`} aria-hidden={!menuOpen}>
         <button className="panel-close" onClick={() => setMenuOpen(false)} aria-label="Close menu">×</button>
-        <p className="panel-label">Explore</p>
-        <nav><a href="#collection" onClick={() => setMenuOpen(false)}>New arrivals <span>01</span></a><a href="#collection" onClick={() => setMenuOpen(false)}>Women <span>02</span></a><a href="#men" onClick={() => setMenuOpen(false)}>Men <span>03</span></a><a href="#collection" onClick={() => setMenuOpen(false)}>Travel <span>04</span></a><a href="#collection" onClick={() => setMenuOpen(false)}>Gifts <span>05</span></a></nav>
-        <div className="panel-meta"><a href="#services">Book an appointment</a><a href="#services">Find a store</a></div>
+        <p className="panel-label">Menu</p>
+        <nav><a href="#collection" onClick={() => setMenuOpen(false)}>Shop <span>01</span></a><a href="#journal" onClick={() => setMenuOpen(false)}>Collection <span>02</span></a><a href="#services" onClick={() => setMenuOpen(false)}>Custom Orders <span>03</span></a><a href="#story" onClick={() => setMenuOpen(false)}>About <span>04</span></a></nav>
       </aside>
 
       <aside className={`side-panel search-panel ${searchOpen ? "open" : ""}`} aria-hidden={!searchOpen}>
         <button className="panel-close" onClick={() => setSearchOpen(false)} aria-label="Close search">×</button>
-        <p className="panel-label">Search the Maison</p>
+        <p className="panel-label">Search Narok Design</p>
         <form onSubmit={(e) => { e.preventDefault(); setSearchOpen(false); document.getElementById("collection")?.scrollIntoView(); }}>
           <input autoFocus={searchOpen} aria-label="Search" placeholder="What are you looking for?" />
           <button>→</button>

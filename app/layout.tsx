@@ -18,13 +18,13 @@ export async function generateMetadata(): Promise<Metadata> {
   const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host") ?? "localhost:3000";
   const protocol = requestHeaders.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
   const image = `${protocol}://${host}/og.png`;
-  const title = "Maison Lueur — The Art of the Journey";
-  const description = "A contemporary vision of leather, fashion, fragrance and the art of travel.";
+  const title = "NAROK DESIGN — The Art of the Journey";
+  const description = "Narok Design presents a contemporary vision of leather, fashion, fragrance and the art of travel.";
 
   return {
     title,
     description,
-    openGraph: { title, description, type: "website", images: [{ url: image, width: 1792, height: 928, alt: "Maison Lueur — Horizons in Motion" }] },
+    openGraph: { title, description, type: "website", images: [{ url: image, width: 1792, height: 928, alt: "Narok Design — Horizons in Motion" }] },
     twitter: { card: "summary_large_image", title, description, images: [image] },
   };
 }
