@@ -137,7 +137,7 @@ footer h2 { max-width: 650px; font-size: clamp(39px, 4.5vw, 67px); }
 .panel-close { position: absolute; top: 28px; right: 32px; padding: 5px; background: none; border: 0; cursor: pointer; font-family: var(--serif); font-size: 31px; font-weight: 300; }
 .panel-label { margin: 40px 0 52px; color: #766f66; font-size: 9px; text-transform: uppercase; letter-spacing: .2em; }
 .menu-panel nav { display: flex; flex-direction: column; }
-.menu-panel nav a { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--line); text-decoration: none; font-family: var(--serif); font-size: clamp(29px, 4vw, 44px); }
+.menu-panel nav a { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--line); text-decoration: none; font-family: var(--serif); font-size: 18px; }
 .menu-panel nav span { color: #90887f; font-family: Arial, sans-serif; font-size: 9px; }
 .panel-meta { position: absolute; right: 54px; bottom: 48px; left: 54px; display: flex; justify-content: space-between; gap: 15px; }
 .panel-meta a { font-size: 10px; text-transform: uppercase; letter-spacing: .12em; }
