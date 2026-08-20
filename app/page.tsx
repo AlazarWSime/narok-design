@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 
 const products = [
   {
@@ -46,6 +46,24 @@ export default function Home() {
   const [bag, setBag] = useState<string[]>([]);
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
+  const [headerScrolled, setHeaderScrolled] = useState(false);
+
+  useEffect(() => {
+    const updateHeader = () => {
+      const hero = document.querySelector<HTMLElement>(".hero");
+      if (!hero) return;
+      const halfwayPoint = hero.offsetTop + hero.offsetHeight / 2;
+      setHeaderScrolled(window.scrollY >= halfwayPoint);
+    };
+
+    updateHeader();
+    window.addEventListener("scroll", updateHeader, { passive: true });
+    window.addEventListener("resize", updateHeader);
+    return () => {
+      window.removeEventListener("scroll", updateHeader);
+      window.removeEventListener("resize", updateHeader);
+    };
+  }, []);
 
   const addToBag = (name: string) => {
     setBag((items) => [...items, name]);
@@ -64,7 +82,7 @@ export default function Home() {
         <a href="#services">Discover our services</a>
       </div>
 
-      <header className="site-header">
+      <header className={`site-header ${headerScrolled ? "scrolled" : ""}`}>
         <button className="header-action menu-trigger" onClick={() => setMenuOpen(true)} aria-label="Open menu">
           <span className="menu-lines" aria-hidden="true"><i /><i /></span> Menu
         </button>

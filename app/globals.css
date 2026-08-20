@@ -30,9 +30,9 @@ img { display: block; width: 100%; }
 .header-action > span:not(.menu-lines) { display: inline-grid; place-items: center; min-width: 20px; aspect-ratio: 1; border: 1px solid rgba(255,255,255,.7); border-radius: 50%; font-size: 9px; }
 .menu-lines { width: 19px; display: flex; flex-direction: column; gap: 5px; }
 .menu-lines i { width: 100%; height: 1px; display: block; background: currentColor; }
-.site-header:hover, .site-header:focus-within { color: var(--ink); background-color: white; border-color: rgba(17,16,15,.16); box-shadow: 0 1px 0 rgba(17,16,15,.05); }
-.site-header:hover .header-action, .site-header:focus-within .header-action { color: var(--ink); }
-.site-header:hover .header-action > span:not(.menu-lines), .site-header:focus-within .header-action > span:not(.menu-lines) { border-color: rgba(17,16,15,.55); }
+.site-header:hover, .site-header:focus-within, .site-header.scrolled { color: var(--ink); background-color: white; border-color: rgba(17,16,15,.16); box-shadow: 0 1px 0 rgba(17,16,15,.05); }
+.site-header:hover .header-action, .site-header:focus-within .header-action, .site-header.scrolled .header-action { color: var(--ink); }
+.site-header:hover .header-action > span:not(.menu-lines), .site-header:focus-within .header-action > span:not(.menu-lines), .site-header.scrolled .header-action > span:not(.menu-lines) { border-color: rgba(17,16,15,.55); }
 .hero-content { position: absolute; z-index: 1; left: 50%; bottom: 10vh; width: min(780px, 88vw); text-align: center; transform: translateX(-50%); }
 .eyebrow { margin: 0 0 17px; font-size: 10px; text-transform: uppercase; letter-spacing: .24em; }
 .eyebrow.dark { color: #726c63; }
