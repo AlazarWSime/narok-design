@@ -21,7 +21,7 @@ img { display: block; width: 100%; }
 .announcement { height: 34px; display: flex; align-items: center; justify-content: center; gap: 17px; color: #f8f5ef; background: #171513; font-size: 10px; letter-spacing: .11em; text-transform: uppercase; }
 .announcement a { color: #d8b58c; }
 
-.hero { position: relative; min-height: calc(100svh - 34px); color: white; overflow: hidden; background: #3c372f url("https://images.unsplash.com/photo-1759090889533-d04bac321eb6?auto=format&fit=crop&w=2400&q=90") center 35% / cover no-repeat; }
+.hero { position: relative; min-height: calc(100svh - 34px); color: white; overflow: hidden; background: #3c372f url("/maison-lueur-hero.png") center 35% / cover no-repeat; }
 .hero-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.48), rgba(0,0,0,.03) 38%, rgba(0,0,0,.64)); }
 .site-header { position: relative; z-index: 2; height: 92px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 4vw; border-bottom: 1px solid rgba(255,255,255,.27); }
 .wordmark { font-size: clamp(18px, 2.15vw, 31px); font-weight: 700; letter-spacing: .2em; text-decoration: none; white-space: nowrap; }
