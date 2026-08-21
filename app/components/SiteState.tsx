@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from "react";
-import type { Language } from "../data/catalog";
+import { products as fallbackProducts, type Language, type Product } from "../data/catalog";
 
 type SiteStateValue = {
   language: Language;
@@ -12,6 +12,7 @@ type SiteStateValue = {
   clearSelection: () => void;
   wishlist: number[];
   toggleWishlist: (productId: number) => void;
+  catalog: Product[];
 };
 
 const STORAGE_KEY = "narok-design-preferences-v1";
@@ -21,6 +22,7 @@ export function SiteStateProvider({ children }: { children: ReactNode }) {
   const [language, setLanguage] = useState<Language>("en");
   const [selection, setSelection] = useState<number[]>([]);
   const [wishlist, setWishlist] = useState<number[]>([]);
+  const [catalog, setCatalog] = useState<Product[]>(fallbackProducts);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
@@ -44,6 +46,17 @@ export function SiteStateProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    let cancelled = false;
+    fetch("/api/catalog", { cache: "no-store" })
+      .then((response) => response.ok ? response.json() : Promise.reject(new Error("Catalogue unavailable")))
+      .then((payload: { products?: Product[] }) => {
+        if (!cancelled && Array.isArray(payload.products) && payload.products.length) setCatalog(payload.products);
+      })
+      .catch(() => undefined);
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
     document.documentElement.lang = language;
     if (!hydrated) return;
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ language, selection, wishlist }));
@@ -60,7 +73,8 @@ export function SiteStateProvider({ children }: { children: ReactNode }) {
     toggleWishlist: (productId) => setWishlist((items) =>
       items.includes(productId) ? items.filter((id) => id !== productId) : [...items, productId],
     ),
-  }), [language, selection, wishlist]);
+    catalog,
+  }), [catalog, language, selection, wishlist]);
 
   return <SiteStateContext.Provider value={value}>{children}</SiteStateContext.Provider>;
 }

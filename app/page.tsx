@@ -6,7 +6,7 @@ import CustomOrderForm from "./components/CustomOrderForm";
 import NewsletterForm from "./components/NewsletterForm";
 import ProductGrid from "./components/ProductGrid";
 import { useSiteState } from "./components/SiteState";
-import { Category, products } from "./data/catalog";
+import { Category } from "./data/catalog";
 import { usePanelFocus } from "./hooks/usePanelFocus";
 
 const copy = {
@@ -56,7 +56,7 @@ const copy = {
 };
 
 export default function Home() {
-  const { language, setLanguage, selection, removeFromSelection, wishlist } = useSiteState();
+  const { language, setLanguage, selection, removeFromSelection, wishlist, catalog } = useSiteState();
   const [category, setCategory] = useState<Category>("all");
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -81,8 +81,8 @@ export default function Home() {
 
   const filteredProducts = useMemo(() => {
     const normalized = query.trim().toLowerCase();
-    return products.filter((product) => (category === "all" || product.category === category) && (!normalized || `${product.name.en} ${product.name.am} ${product.type.en} ${product.category}`.toLowerCase().includes(normalized)));
-  }, [category, query]);
+    return catalog.filter((product) => (category === "all" || product.category === category) && (!normalized || `${product.name.en} ${product.name.am} ${product.type.en} ${product.category}`.toLowerCase().includes(normalized)));
+  }, [catalog, category, query]);
 
   const closeMenu = useCallback(() => setMenuOpen(false), []);
   const closeSearch = useCallback(() => setSearchOpen(false), []);
@@ -127,7 +127,7 @@ export default function Home() {
       <button className={`panel-backdrop ${menuOpen || searchOpen || cartOpen ? "visible" : ""}`} onClick={closePanels} aria-label="Close open panel" />
       <aside ref={menuRef} className={`side-panel menu-panel ${menuOpen ? "open" : ""}`} aria-hidden={!menuOpen} role="dialog" aria-modal="true" aria-labelledby="menu-panel-title"><button className="panel-close" onClick={closeMenu} aria-label="Close menu">×</button><p className="panel-label" id="menu-panel-title">{t.panelMenu}</p><nav>{t.nav.map((item, index) => <a href={t.navHrefs[index]} onClick={closeMenu} key={item}>{item}<span>0{index + 1}</span></a>)}</nav><div className="panel-meta"><button onClick={() => setLanguage(language === "en" ? "am" : "en")}>{language === "en" ? "አማርኛ" : "English"}</button><a href="#custom" onClick={closeMenu}>Addis Ababa</a></div></aside>
       <aside ref={searchRef} className={`side-panel search-panel ${searchOpen ? "open" : ""}`} aria-hidden={!searchOpen} role="dialog" aria-modal="true" aria-labelledby="search-panel-title"><button className="panel-close" onClick={closeSearch} aria-label="Close search">×</button><p className="panel-label" id="search-panel-title">{t.panelSearch}</p><form onSubmit={runSearch}><label className="visually-hidden" htmlFor="catalogue-search">{t.panelSearch}</label><input id="catalogue-search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t.searchPlaceholder} /><button aria-label="Search">→</button></form><p className="suggestions">{t.suggestions}</p></aside>
-      <aside ref={selectionRef} className={`side-panel cart-panel ${cartOpen ? "open" : ""}`} aria-hidden={!cartOpen} role="dialog" aria-modal="true" aria-labelledby="selection-panel-title"><button className="panel-close" onClick={closeSelection} aria-label="Close selection">×</button><p className="panel-label" id="selection-panel-title">{t.bagTitle} · {selection.length}</p>{selection.length === 0 ? <div className="empty-bag"><div><p>{t.emptyBag}</p><button onClick={() => { closeSelection(); document.getElementById("shop")?.scrollIntoView({ behavior: "smooth" }); }}>{t.continueShopping}</button></div></div> : <><div className="bag-items">{selection.map((productId, index) => { const item = products.find((product) => product.id === productId); return item ? <div key={`${item.id}-${index}`}><span>{String(index + 1).padStart(2, "0")}</span><p>{item.name[language]}<small>${item.usd} USD · {item.etb.toLocaleString()} ETB</small></p><button onClick={() => removeFromSelection(index)} aria-label={`Remove ${item.name[language]}`}>×</button></div> : null; })}</div><a className="checkout" href="/custom-orders">{t.checkout}</a><p className="checkout-note static-note">{t.checkoutDemo}</p></>}</aside>
+      <aside ref={selectionRef} className={`side-panel cart-panel ${cartOpen ? "open" : ""}`} aria-hidden={!cartOpen} role="dialog" aria-modal="true" aria-labelledby="selection-panel-title"><button className="panel-close" onClick={closeSelection} aria-label="Close selection">×</button><p className="panel-label" id="selection-panel-title">{t.bagTitle} · {selection.length}</p>{selection.length === 0 ? <div className="empty-bag"><div><p>{t.emptyBag}</p><button onClick={() => { closeSelection(); document.getElementById("shop")?.scrollIntoView({ behavior: "smooth" }); }}>{t.continueShopping}</button></div></div> : <><div className="bag-items">{selection.map((productId, index) => { const item = catalog.find((product) => product.id === productId); return item ? <div key={`${item.id}-${index}`}><span>{String(index + 1).padStart(2, "0")}</span><p>{item.name[language]}<small>${item.usd} USD · {item.etb.toLocaleString()} ETB</small></p><button onClick={() => removeFromSelection(index)} aria-label={`Remove ${item.name[language]}`}>×</button></div> : null; })}</div><a className="checkout" href="/custom-orders">{t.checkout}</a><p className="checkout-note static-note">{t.checkoutDemo}</p></>}</aside>
     </main>
   );
 }

@@ -3,6 +3,7 @@ export type Category = "all" | "women" | "men" | "children";
 
 export type Product = {
   id: number;
+  sku?: string;
   category: Exclude<Category, "all">;
   name: Record<Language, string>;
   type: Record<Language, string>;
@@ -11,6 +12,8 @@ export type Product = {
   image: string;
   imagePosition: "left" | "right";
   madeToOrder?: boolean;
+  stock?: number;
+  status?: "active" | "draft" | "archived";
 };
 
 export const products: Product[] = [
@@ -83,4 +86,3 @@ export const products: Product[] = [
 export function getProduct(id: number) {
   return products.find((product) => product.id === id);
 }
-

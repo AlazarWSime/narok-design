@@ -34,3 +34,46 @@ export const submissionRateLimits = sqliteTable("submission_rate_limits", {
   attempts: integer("attempts").notNull().default(1),
   resetAt: integer("reset_at").notNull(),
 });
+
+export const catalogProducts = sqliteTable("catalog_products", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  sku: text("sku").notNull(),
+  nameEn: text("name_en").notNull(),
+  nameAm: text("name_am").notNull().default(""),
+  typeEn: text("type_en").notNull(),
+  typeAm: text("type_am").notNull().default(""),
+  category: text("category").notNull(),
+  usd: integer("usd").notNull(),
+  etb: integer("etb").notNull(),
+  stock: integer("stock").notNull().default(0),
+  image: text("image").notNull(),
+  imagePosition: text("image_position").notNull().default("left"),
+  madeToOrder: integer("made_to_order", { mode: "boolean" }).notNull().default(false),
+  status: text("status").notNull().default("active"),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+}, (table) => [
+  uniqueIndex("idx_catalog_products_sku").on(table.sku),
+  index("idx_catalog_products_status_category").on(table.status, table.category),
+]);
+
+export const clientOrders = sqliteTable("client_orders", {
+  id: text("id").primaryKey(),
+  orderNumber: text("order_number").notNull(),
+  clientName: text("client_name").notNull(),
+  clientContact: text("client_contact").notNull(),
+  itemsJson: text("items_json").notNull().default("[]"),
+  totalEtb: integer("total_etb").notNull().default(0),
+  status: text("status").notNull().default("new"),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+}, (table) => [
+  uniqueIndex("idx_client_orders_number").on(table.orderNumber),
+  index("idx_client_orders_status_created_at").on(table.status, table.createdAt),
+]);
+
+export const storeSettings = sqliteTable("store_settings", {
+  key: text("key").primaryKey(),
+  value: text("value").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});

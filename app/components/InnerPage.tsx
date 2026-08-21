@@ -3,8 +3,7 @@
 
 import { useCallback, useRef, useState } from "react";
 import Image from "next/image";
-import type { Category, Language } from "../data/catalog";
-import { products } from "../data/catalog";
+import type { Category, Language, Product } from "../data/catalog";
 import { usePanelFocus } from "../hooks/usePanelFocus";
 import CustomOrderForm from "./CustomOrderForm";
 import ProductGrid from "./ProductGrid";
@@ -21,7 +20,7 @@ const pageCopy = {
 };
 
 export default function InnerPage({ kind }: { kind: PageKind }) {
-  const { language, setLanguage, selection, removeFromSelection } = useSiteState();
+  const { language, setLanguage, selection, removeFromSelection, catalog } = useSiteState();
   const [menuOpen, setMenuOpen] = useState(false);
   const [selectionOpen, setSelectionOpen] = useState(false);
   const menuRef = useRef<HTMLElement>(null);
@@ -42,7 +41,7 @@ export default function InnerPage({ kind }: { kind: PageKind }) {
       </header>
 
       <section className={`page-hero page-hero-${kind}`}><Image className="page-hero-image" src="/narok-women.png" alt="" fill priority sizes="100vw" /><div><p className="eyebrow">NAROK DESIGN · ADDIS ABABA</p><h1>{copy[1]}</h1><p>{copy[2]}</p></div><span>{copy[0]}</span></section>
-      {kind === "shop" && <ShopContent language={language} />}
+      {kind === "shop" && <ShopContent language={language} catalog={catalog} />}
       {kind === "collection" && <CollectionContent language={language} />}
       {kind === "custom" && <CustomContent language={language} />}
       {kind === "about" && <AboutContent language={language} />}
@@ -51,15 +50,15 @@ export default function InnerPage({ kind }: { kind: PageKind }) {
 
       <button className={`panel-backdrop ${menuOpen || selectionOpen ? "visible" : ""}`} onClick={() => { closeMenu(); closeSelection(); }} aria-label="Close panel" />
       <aside ref={menuRef} className={`side-panel menu-panel ${menuOpen ? "open" : ""}`} aria-hidden={!menuOpen} role="dialog" aria-modal="true" aria-labelledby="inner-menu-title"><button className="panel-close" onClick={closeMenu} aria-label="Close menu">×</button><p className="panel-label" id="inner-menu-title">{language === "en" ? "Explore NAROK DESIGN" : "NAROK DESIGNን ያስሱ"}</p><nav>{menuLabels[language].map((label, index) => <a className={routes[index].includes(kind === "custom" ? "custom-orders" : kind) ? "current" : ""} href={routes[index]} key={label}>{label}<span>0{index + 1}</span></a>)}</nav><div className="panel-meta"><button onClick={() => setLanguage(language === "en" ? "am" : "en")}>{language === "en" ? "አማርኛ" : "English"}</button><a href="/">Home</a></div></aside>
-      <aside ref={selectionRef} className={`side-panel cart-panel ${selectionOpen ? "open" : ""}`} aria-hidden={!selectionOpen} role="dialog" aria-modal="true" aria-labelledby="inner-selection-title"><button className="panel-close" onClick={closeSelection} aria-label="Close selection">×</button><p className="panel-label" id="inner-selection-title">{language === "en" ? "Your selection" : "ምርጫዎ"} · {selection.length}</p>{selection.length === 0 ? <div className="empty-bag"><p>{language === "en" ? "Save pieces here before sending an atelier enquiry." : "ለስፌት ቤቱ ጥያቄ ከመላክዎ በፊት ልብሶችን እዚህ ይምረጡ።"}</p></div> : <><div className="bag-items">{selection.map((productId, index) => { const item = products.find((product) => product.id === productId); return item ? <div key={`${item.id}-${index}`}><span>{String(index + 1).padStart(2, "0")}</span><p>{item.name[language]}<small>${item.usd} USD · {item.etb.toLocaleString()} ETB</small></p><button onClick={() => removeFromSelection(index)} aria-label={`Remove ${item.name[language]}`}>×</button></div> : null; })}</div><a className="checkout" href="/custom-orders">{language === "en" ? "Enquire about these pieces" : "ስለነዚህ ልብሶች ይጠይቁ"}</a></>}</aside>
+      <aside ref={selectionRef} className={`side-panel cart-panel ${selectionOpen ? "open" : ""}`} aria-hidden={!selectionOpen} role="dialog" aria-modal="true" aria-labelledby="inner-selection-title"><button className="panel-close" onClick={closeSelection} aria-label="Close selection">×</button><p className="panel-label" id="inner-selection-title">{language === "en" ? "Your selection" : "ምርጫዎ"} · {selection.length}</p>{selection.length === 0 ? <div className="empty-bag"><p>{language === "en" ? "Save pieces here before sending an atelier enquiry." : "ለስፌት ቤቱ ጥያቄ ከመላክዎ በፊት ልብሶችን እዚህ ይምረጡ።"}</p></div> : <><div className="bag-items">{selection.map((productId, index) => { const item = catalog.find((product) => product.id === productId); return item ? <div key={`${item.id}-${index}`}><span>{String(index + 1).padStart(2, "0")}</span><p>{item.name[language]}<small>${item.usd} USD · {item.etb.toLocaleString()} ETB</small></p><button onClick={() => removeFromSelection(index)} aria-label={`Remove ${item.name[language]}`}>×</button></div> : null; })}</div><a className="checkout" href="/custom-orders">{language === "en" ? "Enquire about these pieces" : "ስለነዚህ ልብሶች ይጠይቁ"}</a></>}</aside>
     </main>
   );
 }
 
-function ShopContent({ language }: { language: Language }) {
+function ShopContent({ language, catalog }: { language: Language; catalog: Product[] }) {
   const [filter, setFilter] = useState<Category>("all");
   const labels: Record<Category, Record<Language, string>> = { all: { en: "All", am: "ሁሉም" }, women: { en: "Women", am: "ሴቶች" }, men: { en: "Men", am: "ወንዶች" }, children: { en: "Children", am: "ልጆች" } };
-  const filtered = filter === "all" ? products : products.filter((product) => product.category === filter);
+  const filtered = filter === "all" ? catalog : catalog.filter((product) => product.category === filter);
   return <section className="inner-content shop-page" id="catalogue"><div className="inner-section-heading"><p className="eyebrow dark">{language === "en" ? "Catalogue" : "ካታሎግ"}</p><h2>{language === "en" ? "Shop every piece" : "ሁሉንም ልብስ ይመልከቱ"}</h2></div><div className="filter-row">{(["all", "women", "men", "children"] as Category[]).map((item) => <button className={filter === item ? "active" : ""} onClick={() => setFilter(item)} key={item}>{labels[item][language]}</button>)}</div><ProductGrid products={filtered} language={language} addLabel={language === "en" ? "Add to selection" : "ወደ ምርጫ ያክሉ"} sampleLabel={language === "en" ? "Original catalogue image" : "የካታሎግ ምስል"} madeToOrderLabel={language === "en" ? "Made to order" : "በትዕዛዝ"} noResultsLabel={language === "en" ? "No pieces match this filter." : "ከዚህ ማጣሪያ ጋር የሚዛመድ ልብስ የለም።"} /></section>;
 }
 
