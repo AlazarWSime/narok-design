@@ -1,8 +1,8 @@
 "use client";
+/* eslint-disable @next/next/no-html-link-for-pages -- vinext client navigation currently requires plain anchors */
 
 import { useCallback, useRef, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import type { Category, Language } from "../data/catalog";
 import { products } from "../data/catalog";
 import { usePanelFocus } from "../hooks/usePanelFocus";
@@ -37,7 +37,7 @@ export default function InnerPage({ kind }: { kind: PageKind }) {
       <div className="announcement"><span>{language === "en" ? "Designed in Addis Ababa · Worldwide delivery" : "በአዲስ አበባ የተነደፈ · ዓለም አቀፍ መላኪያ"}</span><span aria-hidden="true">✦</span><button onClick={() => setLanguage(language === "en" ? "am" : "en")}>{language === "en" ? "አማርኛ" : "English"}</button><span>USD · ETB</span></div>
       <header className="site-header page-header scrolled">
         <button className="header-action menu-trigger" onClick={() => setMenuOpen(true)} aria-label={language === "en" ? "Menu" : "ምናሌ"}><span className="menu-lines"><i /><i /></span>{language === "en" ? "Menu" : "ምናሌ"}</button>
-        <Link className="wordmark" href="/">NAROK DESIGN</Link>
+        <a className="wordmark" href="/">NAROK DESIGN</a>
         <div className="header-actions"><a className="header-action" href="/shop#catalogue">{language === "en" ? "Search" : "ፈልግ"}</a><button className="header-action" data-mobile-label={language === "en" ? "Selection" : "ምርጫ"} onClick={() => setSelectionOpen(true)}>{language === "en" ? "Selection" : "ምርጫ"} <span>{selection.length}</span></button></div>
       </header>
 
@@ -47,10 +47,10 @@ export default function InnerPage({ kind }: { kind: PageKind }) {
       {kind === "custom" && <CustomContent language={language} />}
       {kind === "about" && <AboutContent language={language} />}
 
-      <footer className="inner-footer"><div><Link className="wordmark" href="/">NAROK DESIGN</Link><p>{language === "en" ? "Ethiopian heritage, made for the world." : "የኢትዮጵያ ቅርስ፣ ለዓለም የተሰራ።"}</p></div><nav>{menuLabels[language].map((label, index) => <a href={routes[index]} key={label}>{label}</a>)}</nav><p>© 2026 · ADDIS ABABA, ETHIOPIA</p></footer>
+      <footer className="inner-footer"><div><a className="wordmark" href="/">NAROK DESIGN</a><p>{language === "en" ? "Ethiopian heritage, made for the world." : "የኢትዮጵያ ቅርስ፣ ለዓለም የተሰራ።"}</p></div><nav>{menuLabels[language].map((label, index) => <a href={routes[index]} key={label}>{label}</a>)}</nav><p>© 2026 · ADDIS ABABA, ETHIOPIA</p></footer>
 
       <button className={`panel-backdrop ${menuOpen || selectionOpen ? "visible" : ""}`} onClick={() => { closeMenu(); closeSelection(); }} aria-label="Close panel" />
-      <aside ref={menuRef} className={`side-panel menu-panel ${menuOpen ? "open" : ""}`} aria-hidden={!menuOpen} role="dialog" aria-modal="true" aria-labelledby="inner-menu-title"><button className="panel-close" onClick={closeMenu} aria-label="Close menu">×</button><p className="panel-label" id="inner-menu-title">{language === "en" ? "Explore NAROK DESIGN" : "NAROK DESIGNን ያስሱ"}</p><nav>{menuLabels[language].map((label, index) => <a className={routes[index].includes(kind === "custom" ? "custom-orders" : kind) ? "current" : ""} href={routes[index]} key={label}>{label}<span>0{index + 1}</span></a>)}</nav><div className="panel-meta"><button onClick={() => setLanguage(language === "en" ? "am" : "en")}>{language === "en" ? "አማርኛ" : "English"}</button><Link href="/">Home</Link></div></aside>
+      <aside ref={menuRef} className={`side-panel menu-panel ${menuOpen ? "open" : ""}`} aria-hidden={!menuOpen} role="dialog" aria-modal="true" aria-labelledby="inner-menu-title"><button className="panel-close" onClick={closeMenu} aria-label="Close menu">×</button><p className="panel-label" id="inner-menu-title">{language === "en" ? "Explore NAROK DESIGN" : "NAROK DESIGNን ያስሱ"}</p><nav>{menuLabels[language].map((label, index) => <a className={routes[index].includes(kind === "custom" ? "custom-orders" : kind) ? "current" : ""} href={routes[index]} key={label}>{label}<span>0{index + 1}</span></a>)}</nav><div className="panel-meta"><button onClick={() => setLanguage(language === "en" ? "am" : "en")}>{language === "en" ? "አማርኛ" : "English"}</button><a href="/">Home</a></div></aside>
       <aside ref={selectionRef} className={`side-panel cart-panel ${selectionOpen ? "open" : ""}`} aria-hidden={!selectionOpen} role="dialog" aria-modal="true" aria-labelledby="inner-selection-title"><button className="panel-close" onClick={closeSelection} aria-label="Close selection">×</button><p className="panel-label" id="inner-selection-title">{language === "en" ? "Your selection" : "ምርጫዎ"} · {selection.length}</p>{selection.length === 0 ? <div className="empty-bag"><p>{language === "en" ? "Save pieces here before sending an atelier enquiry." : "ለስፌት ቤቱ ጥያቄ ከመላክዎ በፊት ልብሶችን እዚህ ይምረጡ።"}</p></div> : <><div className="bag-items">{selection.map((productId, index) => { const item = products.find((product) => product.id === productId); return item ? <div key={`${item.id}-${index}`}><span>{String(index + 1).padStart(2, "0")}</span><p>{item.name[language]}<small>${item.usd} USD · {item.etb.toLocaleString()} ETB</small></p><button onClick={() => removeFromSelection(index)} aria-label={`Remove ${item.name[language]}`}>×</button></div> : null; })}</div><a className="checkout" href="/custom-orders">{language === "en" ? "Enquire about these pieces" : "ስለነዚህ ልብሶች ይጠይቁ"}</a></>}</aside>
     </main>
   );
