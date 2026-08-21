@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { headers } from "next/headers";
+import { SiteStateProvider } from "./components/SiteState";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,21 +13,17 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export async function generateMetadata(): Promise<Metadata> {
-  const requestHeaders = await headers();
-  const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host") ?? "localhost:3000";
-  const protocol = requestHeaders.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
-  const image = `${protocol}://${host}/og-narok.png`;
-  const title = "NAROK DESIGN — Ethiopian Heritage, Made for the World";
-  const description = "Traditional Ethiopian clothing for women, men and children, designed in Addis Ababa and available ready-made or made to order.";
+const siteOrigin = process.env.SITE_URL ?? "http://localhost:3000";
+const title = "NAROK DESIGN — Ethiopian Heritage, Made for the World";
+const description = "Traditional Ethiopian clothing for women, men and children, designed in Addis Ababa and available ready-made or made to order.";
 
-  return {
-    title,
-    description,
-    openGraph: { title, description, type: "website", images: [{ url: image, width: 1536, height: 1024, alt: "NAROK DESIGN — Ethiopian Heritage, Made for the World" }] },
-    twitter: { card: "summary_large_image", title, description, images: [image] },
-  };
-}
+export const metadata: Metadata = {
+  metadataBase: new URL(siteOrigin),
+  title,
+  description,
+  openGraph: { title, description, type: "website", images: [{ url: "/og-narok.png", width: 1536, height: 1024, alt: title }] },
+  twitter: { card: "summary_large_image", title, description, images: ["/og-narok.png"] },
+};
 
 export default function RootLayout({
   children,
@@ -39,7 +35,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <SiteStateProvider>{children}</SiteStateProvider>
       </body>
     </html>
   );
