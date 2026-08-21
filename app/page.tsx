@@ -27,7 +27,7 @@ const products: Product[] = [
 const copy = {
   en: {
     announcement: "Designed in Addis Ababa · Worldwide delivery", menu: "Menu", search: "Search", bag: "Bag",
-    nav: ["Shop", "Collection", "Custom Orders", "About"], navHrefs: ["#shop", "#collection", "#custom", "#about"],
+    nav: ["Shop", "Collection", "Custom Orders", "About"], navHrefs: ["/shop", "/collection", "/custom-orders", "/about"],
     heroEyebrow: "Ethiopian design · Made in Addis Ababa", heroTitle: "Ethiopian Heritage, Made for the World.",
     heroBody: "Traditional clothing shaped by Ethiopian artistry, made for celebrations, ceremonies and everyday pride—wherever you call home.",
     shopNow: "Shop the collection", customCta: "Create a custom order", categories: ["Women", "Men", "Children", "Custom", "Our Story"],
@@ -51,7 +51,7 @@ const copy = {
   },
   am: {
     announcement: "በአዲስ አበባ የተነደፈ · ዓለም አቀፍ መላኪያ", menu: "ምናሌ", search: "ፈልግ", bag: "ቦርሳ",
-    nav: ["ይግዙ", "ስብስብ", "ብጁ ትዕዛዝ", "ስለ እኛ"], navHrefs: ["#shop", "#collection", "#custom", "#about"],
+    nav: ["ይግዙ", "ስብስብ", "ብጁ ትዕዛዝ", "ስለ እኛ"], navHrefs: ["/shop", "/collection", "/custom-orders", "/about"],
     heroEyebrow: "የኢትዮጵያ ዲዛይን · በአዲስ አበባ የተሰራ", heroTitle: "የኢትዮጵያ ቅርስ፣ ለዓለም የተሰራ።",
     heroBody: "በኢትዮጵያ ጥበብ የተቀረጹ ባህላዊ ልብሶች፤ ለበዓል፣ ለሥነ ሥርዓት እና ለዕለት ኩራት።",
     shopNow: "ስብስቡን ይመልከቱ", customCta: "ብጁ ትዕዛዝ ይፍጠሩ", categories: ["ሴቶች", "ወንዶች", "ልጆች", "ብጁ", "ታሪካችን"],
@@ -125,9 +125,9 @@ export default function Home() {
         <div className="header-actions"><button className="header-action" onClick={() => setSearchOpen(true)}>{t.search}</button><button className="header-action wishlist-header" onClick={() => document.getElementById("shop")?.scrollIntoView({ behavior: "smooth" })}>♡ <span>{wishlist.length}</span></button><button className="header-action" onClick={() => setCartOpen(true)}>{t.bag} <span>{bag.length}</span></button></div>
       </header>
 
-      <section className="hero" id="home"><div className="hero-shade" /><div className="hero-content"><p className="eyebrow">{t.heroEyebrow}</p><h1>{t.heroTitle}</h1><p className="hero-copy">{t.heroBody}</p><div className="hero-actions"><a href="#shop">{t.shopNow}</a><a href="#custom">{t.customCta}</a></div></div><a className="scroll-cue" href="#collection" aria-label="Scroll to collection"><span>↓</span></a></section>
+      <section className="hero" id="home"><div className="hero-shade" /><div className="hero-content"><p className="eyebrow">{t.heroEyebrow}</p><h1>{t.heroTitle}</h1><p className="hero-copy">{t.heroBody}</p><div className="hero-actions"><a href="/shop">{t.shopNow}</a><a href="/custom-orders">{t.customCta}</a></div></div><a className="scroll-cue" href="#collection" aria-label="Scroll to collection"><span>↓</span></a></section>
 
-      <nav className="category-nav" aria-label="Collection categories">{[[t.categories[0], "#shop"], [t.categories[1], "#shop"], [t.categories[2], "#shop"], [t.categories[3], "#custom"], [t.categories[4], "#about"]].map(([label, href], index) => <a href={href} key={label}><span>0{index + 1}</span>{label}</a>)}</nav>
+      <nav className="category-nav" aria-label="Collection categories">{[[t.categories[0], "/shop"], [t.categories[1], "/shop"], [t.categories[2], "/shop"], [t.categories[3], "/custom-orders"], [t.categories[4], "/about"]].map(([label, href], index) => <a href={href} key={label}><span>0{index + 1}</span>{label}</a>)}</nav>
 
       <section className="collection" id="collection">
         <div className="section-heading"><p className="eyebrow dark">{t.collectionEyebrow}</p><h2>{t.collectionTitle}</h2><p>{t.collectionBody}</p></div>
