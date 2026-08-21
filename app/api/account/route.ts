@@ -1,0 +1,27 @@
+import { getChatGPTUser } from "../../chatgpt-auth";
+import { ensureSchema, getD1 } from "../../../db/runtime";
+
+type EnquiryRow = { id: string; garment: string; status: string; createdAt: string; neededBy: string };
+
+export async function GET() {
+  const user = await getChatGPTUser();
+  if (!user) return Response.json({ error: "Authentication required" }, { status: 401 });
+  await ensureSchema();
+  const db = getD1();
+  const now = new Date().toISOString();
+  await db.prepare(`INSERT INTO customer_profiles (user_id, email, display_name, created_at, last_signed_in_at)
+    VALUES (?, ?, ?, ?, ?)
+    ON CONFLICT(user_id) DO UPDATE SET email = excluded.email, display_name = excluded.display_name,
+      last_signed_in_at = excluded.last_signed_in_at`).bind(user.userId, user.email.toLowerCase(), user.displayName, now, now).run();
+  const [enquiries, newsletter] = await Promise.all([
+    db.prepare(`SELECT id, garment, status, created_at AS createdAt, needed_by AS neededBy
+      FROM custom_orders WHERE lower(contact) = lower(?) ORDER BY created_at DESC LIMIT 20`).bind(user.email).all<EnquiryRow>(),
+    db.prepare("SELECT 1 AS subscribed FROM newsletter_subscribers WHERE lower(email) = lower(?) LIMIT 1").bind(user.email).first<{ subscribed: number }>(),
+  ]);
+  return Response.json({
+    profile: { displayName: user.displayName, email: user.email },
+    enquiries: enquiries.results,
+    newsletterSubscribed: Boolean(newsletter?.subscribed),
+  }, { headers: { "cache-control": "private, no-store" } });
+}
+

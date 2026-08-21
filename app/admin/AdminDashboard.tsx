@@ -66,7 +66,7 @@ export default function AdminDashboard({ displayName }: { displayName: string })
       <aside className="admin-sidebar">
         <Link className="admin-brand" href="/"><span>NAROK</span><strong>DESIGN</strong><small>ATELIER ADMIN</small></Link>
         <nav aria-label="Admin sections">{nav.map((item) => <button key={item.id} className={section === item.id ? "active" : ""} onClick={() => setSection(item.id)}><span aria-hidden="true">{item.icon}</span>{item.label}</button>)}</nav>
-        <div className="admin-side-foot"><p>Private workspace</p><a href="/signout?returnTo=%2F">Sign out</a></div>
+        <div className="admin-side-foot"><p>Owner workspace</p><a href="/signout-with-chatgpt?return_to=%2F">Sign out</a></div>
       </aside>
       <main className="admin-main">
         <header className="admin-topbar">

@@ -86,6 +86,8 @@ test("protects the private admin workspace and exposes all requested sections", 
 });
 
 test("exposes the admin-aware profile session without trusting the client", async () => {
+  const previousAdminEmails = process.env.ADMIN_EMAILS;
+  process.env.ADMIN_EMAILS = "owner@example.com";
   const response = await request("/api/session", { headers: {
     "oai-authenticated-user-id": "test-owner",
     "oai-authenticated-user-email": "owner@example.com",
@@ -94,6 +96,8 @@ test("exposes the admin-aware profile session without trusting the client", asyn
   } });
   assert.equal(response.status, 200);
   assert.deepEqual(await response.json(), { authenticated: true, isAdmin: true, displayName: "Narok Admin" });
+  if (previousAdminEmails === undefined) delete process.env.ADMIN_EMAILS;
+  else process.env.ADMIN_EMAILS = previousAdminEmails;
   const [home, inner, control] = await Promise.all([
     readFile(new URL("app/page.tsx", root), "utf8"),
     readFile(new URL("app/components/InnerPage.tsx", root), "utf8"),
@@ -103,4 +107,22 @@ test("exposes the admin-aware profile session without trusting the client", asyn
   assert.match(inner, /ProfileControl/);
   assert.match(control, /Admin dashboard/);
   assert.match(control, /href="\/admin"/);
+});
+
+test("keeps the storefront public while protecting customer account pages", async () => {
+  const anonymousHome = await request("/");
+  assert.equal(anonymousHome.status, 200);
+  const anonymousSession = await request("/api/session");
+  assert.deepEqual(await anonymousSession.json(), { authenticated: false, isAdmin: false, displayName: null });
+  const anonymousAccount = await request("/account");
+  assert.ok([301, 302, 303, 307, 308].includes(anonymousAccount.status));
+  assert.match(anonymousAccount.headers.get("location") ?? "", /signin-with-chatgpt/i);
+  const customerAccount = await request("/account", { headers: {
+    "oai-authenticated-user-id": "customer-1",
+    "oai-authenticated-user-email": "customer@example.com",
+    "oai-authenticated-user-full-name": "Aster%20Bekele",
+    "oai-authenticated-user-full-name-encoding": "percent-encoded-utf-8",
+  } });
+  assert.equal(customerAccount.status, 200);
+  assert.match(await customerAccount.text(), /Aster Bekele/i);
 });

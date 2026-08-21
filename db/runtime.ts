@@ -88,6 +88,14 @@ export function ensureSchema() {
       value TEXT NOT NULL,
       updated_at TEXT NOT NULL
     )`),
+    db.prepare(`CREATE TABLE IF NOT EXISTS customer_profiles (
+      user_id TEXT PRIMARY KEY NOT NULL,
+      email TEXT NOT NULL,
+      display_name TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      last_signed_in_at TEXT NOT NULL
+    )`),
+    db.prepare("CREATE UNIQUE INDEX IF NOT EXISTS idx_customer_profiles_email ON customer_profiles(email)"),
     ...seedProducts.map((product) => db.prepare(`INSERT OR IGNORE INTO catalog_products
       (id, sku, name_en, name_am, type_en, type_am, category, usd, etb, stock, image, image_position, made_to_order, status, created_at, updated_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?)`)

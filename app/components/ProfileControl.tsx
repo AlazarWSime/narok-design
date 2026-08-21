@@ -17,11 +17,12 @@ export default function ProfileControl({ language = "en" }: { language?: "en" | 
   }, []);
 
   const adminLabel = language === "am" ? "የአስተዳዳሪ ዳሽቦርድ" : "Admin dashboard";
-  const profileLabel = language === "am" ? "መገለጫ" : "Profile";
-  const content = <><span className="profile-glyph" aria-hidden="true" /><span className="profile-copy">{session?.isAdmin ? adminLabel : profileLabel}{session?.isAdmin && session.displayName ? <small>{session.displayName}</small> : null}</span></>;
+  const accountLabel = language === "am" ? "የእኔ መለያ" : "My account";
+  const signInLabel = language === "am" ? "ይግቡ" : "Sign in";
+  const label = session?.isAdmin ? adminLabel : session?.authenticated ? accountLabel : signInLabel;
+  const content = <><span className="profile-glyph" aria-hidden="true" /><span className="profile-copy">{label}{session?.authenticated && session.displayName ? <small>{session.displayName}</small> : null}</span></>;
 
   if (session?.isAdmin) return <a className="profile-control admin-profile-link" href="/admin" aria-label={adminLabel}>{content}</a>;
-  if (session?.authenticated) return <span className="profile-control" title={session.displayName ?? profileLabel} aria-label={session.displayName ?? profileLabel}>{content}</span>;
-  return <a className="profile-control" href="/signin-with-chatgpt?returnTo=%2F" aria-label={profileLabel}>{content}</a>;
+  if (session?.authenticated) return <a className="profile-control" href="/account" aria-label={accountLabel}>{content}</a>;
+  return <a className="profile-control" href="/signin-with-chatgpt?return_to=%2Faccount" aria-label={signInLabel}>{content}</a>;
 }
-

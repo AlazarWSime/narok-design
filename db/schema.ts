@@ -77,3 +77,13 @@ export const storeSettings = sqliteTable("store_settings", {
   value: text("value").notNull(),
   updatedAt: text("updated_at").notNull(),
 });
+
+export const customerProfiles = sqliteTable("customer_profiles", {
+  userId: text("user_id").primaryKey(),
+  email: text("email").notNull(),
+  displayName: text("display_name").notNull(),
+  createdAt: text("created_at").notNull(),
+  lastSignedInAt: text("last_signed_in_at").notNull(),
+}, (table) => [
+  uniqueIndex("idx_customer_profiles_email").on(table.email),
+]);

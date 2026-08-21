@@ -24,16 +24,16 @@ export async function getChatGPTUser(): Promise<ChatGPTUser | null> {
 }
 
 export function safeRelativeReturnPath(value: string) {
-  if (!value.startsWith("/") || value.startsWith("//") || value.startsWith("/signin-with-chatgpt") || value.startsWith("/signout")) return "/admin";
+  if (!value.startsWith("/") || value.startsWith("//") || value.startsWith("/signin-with-chatgpt") || value.startsWith("/signout")) return "/";
   return value;
 }
 
 export function chatGPTSignInPath(returnTo = "/admin") {
-  return `/signin-with-chatgpt?returnTo=${encodeURIComponent(safeRelativeReturnPath(returnTo))}`;
+  return `/signin-with-chatgpt?return_to=${encodeURIComponent(safeRelativeReturnPath(returnTo))}`;
 }
 
 export function signOutPath(returnTo = "/") {
-  return `/signout?returnTo=${encodeURIComponent(safeRelativeReturnPath(returnTo))}`;
+  return `/signout-with-chatgpt?return_to=${encodeURIComponent(safeRelativeReturnPath(returnTo))}`;
 }
 
 export async function requireChatGPTUser(returnTo = "/admin") {
@@ -44,5 +44,5 @@ export async function requireChatGPTUser(returnTo = "/admin") {
 
 export function isAdminEmail(email: string) {
   const configured = process.env.ADMIN_EMAILS?.split(",").map((item) => item.trim().toLowerCase()).filter(Boolean) ?? [];
-  return configured.length === 0 || configured.includes(email.toLowerCase());
+  return configured.length > 0 && configured.includes(email.toLowerCase());
 }
