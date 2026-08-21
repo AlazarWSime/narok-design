@@ -18,7 +18,8 @@ export async function getChatGPTUser(): Promise<ChatGPTUser | null> {
   const userId = requestHeaders.get("oai-authenticated-user-id");
   const email = decodeHeader(requestHeaders.get("oai-authenticated-user-email"));
   if (!userId || !email) return null;
-  const fullName = decodeHeader(requestHeaders.get("oai-authenticated-user-name") ?? requestHeaders.get("oai-authenticated-user-full-name") ?? requestHeaders.get("oai-authenticated-user-display-name"));
+  const encodedFullName = requestHeaders.get("oai-authenticated-user-full-name");
+  const fullName = requestHeaders.get("oai-authenticated-user-full-name-encoding") === "percent-encoded-utf-8" ? decodeHeader(encodedFullName) : encodedFullName;
   return { userId, email, fullName, displayName: fullName?.trim() || email.split("@")[0] };
 }
 

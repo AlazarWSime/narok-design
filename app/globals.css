@@ -32,6 +32,13 @@ img { display: block; width: 100%; }
 .header-actions { display: flex; justify-content: flex-end; align-items: center; gap: 18px; }
 .header-action { display: inline-flex; align-items: center; gap: 9px; padding: 8px 3px; color: inherit; background: none; border: 0; font-size: 10px; text-transform: uppercase; letter-spacing: .13em; }
 .header-action > span:not(.menu-lines) { min-width: 19px; height: 19px; display: inline-grid; place-items: center; border: 1px solid currentColor; border-radius: 50%; font-size: 8px; }
+.profile-control { min-width: 34px; display: inline-flex; align-items: center; gap: 9px; padding: 4px 0 4px 15px; color: inherit; border-left: 1px solid currentColor; text-decoration: none; }
+.profile-glyph { position: relative; width: 31px; height: 31px; flex: 0 0 auto; display: block; border: 1px solid currentColor; border-radius: 50%; }
+.profile-glyph::before { content: ""; position: absolute; top: 7px; left: 50%; width: 7px; height: 7px; border: 1px solid currentColor; border-radius: 50%; transform: translateX(-50%); }
+.profile-glyph::after { content: ""; position: absolute; right: 6px; bottom: 6px; left: 6px; height: 7px; border: 1px solid currentColor; border-bottom: 0; border-radius: 10px 10px 0 0; }
+.profile-copy { display: flex; flex-direction: column; font-size: 8px; font-weight: 700; letter-spacing: .1em; line-height: 1.2; text-transform: uppercase; white-space: nowrap; }
+.profile-copy small { max-width: 105px; margin-top: 3px; overflow: hidden; font-size: 7px; font-weight: 400; letter-spacing: .04em; text-overflow: ellipsis; text-transform: none; }
+.admin-profile-link .profile-glyph { color: white; background: var(--green); border-color: var(--green); }
 .menu-trigger { justify-self: start; }
 .menu-lines { width: 19px; display: flex; flex-direction: column; gap: 5px; }
 .menu-lines i { height: 1px; display: block; background: currentColor; }
@@ -246,11 +253,14 @@ footer h2 { max-width: 700px; font-size: clamp(38px, 4.5vw, 67px); }
   .menu-trigger { font-size: 0; }
   .menu-lines { width: 22px; }
   .header-actions { gap: 5px; }
-  .header-actions .header-action:first-child { font-size: 0; }
-  .header-actions .header-action:first-child::after { content: "⌕"; font-size: 20px; }
+  .header-actions .search-action { font-size: 0; }
+  .header-actions .search-action::after { content: "⌕"; font-size: 20px; }
   .wishlist-header { display: none; }
-  .header-actions .header-action:last-child { font-size: 0; }
-  .header-actions .header-action:last-child::before { content: attr(data-mobile-label); font-size: 8px; }
+  .header-actions .selection-action { font-size: 0; }
+  .header-actions .selection-action::before { content: attr(data-mobile-label); font-size: 8px; }
+  .profile-control { padding-left: 7px; border-left: 0; }
+  .profile-copy { display: none; }
+  .profile-glyph { width: 30px; height: 30px; }
   .wordmark { font-size: 14px; letter-spacing: .12em; }
   .hero { min-height: calc(100svh - 30px); background-position: 52% center; }
   .hero-content { bottom: 6vh; }

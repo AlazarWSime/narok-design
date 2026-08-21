@@ -7,6 +7,7 @@ import type { Category, Language, Product } from "../data/catalog";
 import { usePanelFocus } from "../hooks/usePanelFocus";
 import CustomOrderForm from "./CustomOrderForm";
 import ProductGrid from "./ProductGrid";
+import ProfileControl from "./ProfileControl";
 import { useSiteState } from "./SiteState";
 
 type PageKind = "shop" | "collection" | "custom" | "about";
@@ -37,7 +38,7 @@ export default function InnerPage({ kind }: { kind: PageKind }) {
       <header className="site-header page-header scrolled">
         <button className="header-action menu-trigger" onClick={() => setMenuOpen(true)} aria-label={language === "en" ? "Menu" : "ምናሌ"}><span className="menu-lines"><i /><i /></span>{language === "en" ? "Menu" : "ምናሌ"}</button>
         <a className="wordmark" href="/">NAROK DESIGN</a>
-        <div className="header-actions"><a className="header-action" href="/shop#catalogue">{language === "en" ? "Search" : "ፈልግ"}</a><button className="header-action" data-mobile-label={language === "en" ? "Selection" : "ምርጫ"} onClick={() => setSelectionOpen(true)}>{language === "en" ? "Selection" : "ምርጫ"} <span>{selection.length}</span></button></div>
+        <div className="header-actions"><a className="header-action search-action" href="/shop#catalogue">{language === "en" ? "Search" : "ፈልግ"}</a><button className="header-action selection-action" data-mobile-label={language === "en" ? "Selection" : "ምርጫ"} onClick={() => setSelectionOpen(true)}>{language === "en" ? "Selection" : "ምርጫ"} <span>{selection.length}</span></button><ProfileControl language={language} /></div>
       </header>
 
       <section className={`page-hero page-hero-${kind}`}><Image className="page-hero-image" src="/narok-women.png" alt="" fill priority sizes="100vw" /><div><p className="eyebrow">NAROK DESIGN · ADDIS ABABA</p><h1>{copy[1]}</h1><p>{copy[2]}</p></div><span>{copy[0]}</span></section>

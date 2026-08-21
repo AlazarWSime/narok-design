@@ -5,6 +5,7 @@ import Image from "next/image";
 import CustomOrderForm from "./components/CustomOrderForm";
 import NewsletterForm from "./components/NewsletterForm";
 import ProductGrid from "./components/ProductGrid";
+import ProfileControl from "./components/ProfileControl";
 import { useSiteState } from "./components/SiteState";
 import { Category } from "./data/catalog";
 import { usePanelFocus } from "./hooks/usePanelFocus";
@@ -100,7 +101,7 @@ export default function Home() {
       <header className={`site-header ${headerScrolled ? "scrolled" : ""}`}>
         <button className="header-action menu-trigger" onClick={() => setMenuOpen(true)} aria-label={t.menu}><span className="menu-lines"><i /><i /></span>{t.menu}</button>
         <a className="wordmark" href="#home">NAROK DESIGN</a>
-        <div className="header-actions"><button className="header-action" onClick={() => setSearchOpen(true)}>{t.search}</button><button className="header-action wishlist-header" onClick={() => document.getElementById("shop")?.scrollIntoView({ behavior: "smooth" })} aria-label={language === "en" ? `${wishlist.length} saved pieces` : `${wishlist.length} የተቀመጡ ልብሶች`}>♡ <span>{wishlist.length}</span></button><button className="header-action" data-mobile-label={t.bag} onClick={() => setCartOpen(true)}>{t.bag} <span>{selection.length}</span></button></div>
+        <div className="header-actions"><button className="header-action search-action" onClick={() => setSearchOpen(true)}>{t.search}</button><button className="header-action wishlist-header" onClick={() => document.getElementById("shop")?.scrollIntoView({ behavior: "smooth" })} aria-label={language === "en" ? `${wishlist.length} saved pieces` : `${wishlist.length} የተቀመጡ ልብሶች`}>♡ <span>{wishlist.length}</span></button><button className="header-action selection-action" data-mobile-label={t.bag} onClick={() => setCartOpen(true)}>{t.bag} <span>{selection.length}</span></button><ProfileControl language={language} /></div>
       </header>
 
       <section className="hero" id="home"><Image className="hero-background" src="/narok-women.png" alt="" fill priority sizes="100vw" /><div className="hero-shade" /><div className="hero-content"><p className="eyebrow">{t.heroEyebrow}</p><h1>{t.heroTitle}</h1><p className="hero-copy">{t.heroBody}</p><div className="hero-actions"><a href="/shop">{t.shopNow}</a><a href="/custom-orders">{t.customCta}</a></div></div><a className="scroll-cue" href="#collection" aria-label="Scroll to collection"><span>↓</span></a></section>

@@ -84,3 +84,23 @@ test("protects the private admin workspace and exposes all requested sections", 
   assert.match(dashboard, /getChatGPTUser/);
   assert.match(auth, /ADMIN_EMAILS/);
 });
+
+test("exposes the admin-aware profile session without trusting the client", async () => {
+  const response = await request("/api/session", { headers: {
+    "oai-authenticated-user-id": "test-owner",
+    "oai-authenticated-user-email": "owner@example.com",
+    "oai-authenticated-user-full-name": "Narok%20Admin",
+    "oai-authenticated-user-full-name-encoding": "percent-encoded-utf-8",
+  } });
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { authenticated: true, isAdmin: true, displayName: "Narok Admin" });
+  const [home, inner, control] = await Promise.all([
+    readFile(new URL("app/page.tsx", root), "utf8"),
+    readFile(new URL("app/components/InnerPage.tsx", root), "utf8"),
+    readFile(new URL("app/components/ProfileControl.tsx", root), "utf8"),
+  ]);
+  assert.match(home, /ProfileControl/);
+  assert.match(inner, /ProfileControl/);
+  assert.match(control, /Admin dashboard/);
+  assert.match(control, /href="\/admin"/);
+});
