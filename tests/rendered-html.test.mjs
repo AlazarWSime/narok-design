@@ -221,6 +221,8 @@ test("renders a buyable catalogue and safe payment choices", async () => {
     readFile(new URL("app/api/orders/route.ts", root), "utf8"),
   ]);
   for (const storefront of [home, inner]) assert.match(storefront, /\/checkout/);
+  for (const storefront of [home, inner]) assert.match(storefront, /Cart|Add to cart/);
+  assert.match(await readFile(new URL("app/components/ProductGrid.tsx", root), "utf8"), /🛒/);
   for (const method of ["telebirr", "bank_transfer", "cash_on_delivery"]) {
     assert.match(checkout, new RegExp(method));
     assert.match(orders, new RegExp(method));

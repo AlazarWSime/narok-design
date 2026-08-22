@@ -89,7 +89,8 @@ img { display: block; width: 100%; }
 .heart { top: 15px; font-size: 20px; }
 .heart.saved { color: #ffd59c; background: var(--terracotta); }
 .quick-add { bottom: 15px; font-size: 22px; transition: .2s; }
-.quick-add:hover { background: var(--terracotta); transform: rotate(90deg); }
+.quick-add span { font-size: 16px; line-height: 1; filter: grayscale(1) brightness(4); }
+.quick-add:hover { background: var(--terracotta); transform: translateY(-2px); }
 .quick-add:disabled { cursor: not-allowed; opacity: .6; transform: none; }
 .product-info { display: flex; justify-content: space-between; gap: 16px; padding: 17px 2px 0; }
 .product-info h3 { margin: 0; font-family: var(--serif); font-size: 18px; font-weight: 400; }

@@ -12,7 +12,7 @@ import { usePanelFocus } from "./hooks/usePanelFocus";
 
 const copy = {
   en: {
-    announcement: "Designed in Addis Ababa · Worldwide delivery", menu: "Menu", search: "Search", bag: "Bag",
+    announcement: "Designed in Addis Ababa · Worldwide delivery", menu: "Menu", search: "Search", bag: "Cart",
     nav: ["Shop", "Collection", "Custom Orders", "About", "Admin"], navHrefs: ["/shop", "/collection", "/custom-orders", "/about", "/admin"],
     heroEyebrow: "Ethiopian design · Made in Addis Ababa", heroTitle: "Ethiopian Heritage, Made for the World.",
     heroBody: "Traditional clothing shaped by Ethiopian artistry, made for celebrations, ceremonies and everyday pride—wherever you call home.",
@@ -20,7 +20,7 @@ const copy = {
     filters: { all: "All pieces", women: "Women", men: "Men", children: "Children" },
     collectionEyebrow: "Collection · 01", collectionTitle: "Tradition, tailored to you",
     collectionBody: "Explore ready-made and made-to-order clothing for women, men and children, with pricing in USD and ETB.",
-    visualSample: "Original catalogue image", add: "Add to bag",
+    visualSample: "Original catalogue image", add: "Add to cart",
     storyEyebrow: "Our atelier · Addis Ababa", storyTitle: "Designed by an Ethiopian hand, for a global community.",
     storyBody: "NAROK DESIGN brings the language of Ethiopian traditional clothing into a contemporary wardrobe. Each silhouette begins in Addis Ababa and celebrates the skill, color and symbolism carried through generations.",
     storyBody2: "We create for Ethiopians at home, the diaspora, and anyone around the world who wants to wear Ethiopian heritage with respect and joy.", storyLink: "Meet NAROK DESIGN",
@@ -35,13 +35,13 @@ const copy = {
     bagTitle: "Your shopping bag", emptyBag: "Your shopping bag is ready for a piece you love.", continueShopping: "Continue browsing", checkout: "Checkout securely", checkoutDemo: "Choose Telebirr, bank transfer or pay on delivery at checkout.", noResults: "No pieces match that search yet.",
   },
   am: {
-    announcement: "በአዲስ አበባ የተነደፈ · ዓለም አቀፍ መላኪያ", menu: "ምናሌ", search: "ፈልግ", bag: "ቦርሳ",
+    announcement: "በአዲስ አበባ የተነደፈ · ዓለም አቀፍ መላኪያ", menu: "ምናሌ", search: "ፈልግ", bag: "ጋሪ",
     nav: ["ይግዙ", "ስብስብ", "ብጁ ትዕዛዝ", "ስለ እኛ", "አስተዳዳሪ"], navHrefs: ["/shop", "/collection", "/custom-orders", "/about", "/admin"],
     heroEyebrow: "የኢትዮጵያ ዲዛይን · በአዲስ አበባ የተሰራ", heroTitle: "የኢትዮጵያ ቅርስ፣ ለዓለም የተሰራ።",
     heroBody: "በኢትዮጵያ ጥበብ የተቀረጹ ባህላዊ ልብሶች፤ ለበዓል፣ ለሥነ ሥርዓት እና ለዕለት ኩራት።",
     shopNow: "ስብስቡን ይመልከቱ", customCta: "ብጁ ትዕዛዝ ይፍጠሩ", categories: ["ሴቶች", "ወንዶች", "ልጆች", "ብጁ", "ታሪካችን"],
     filters: { all: "ሁሉም", women: "ሴቶች", men: "ወንዶች", children: "ልጆች" }, collectionEyebrow: "ስብስብ · 01", collectionTitle: "ባህል፣ ለእርስዎ የተሰፋ",
-    collectionBody: "ለሴቶች፣ ለወንዶች እና ለልጆች የተዘጋጁ እና በትዕዛዝ የሚሰሩ ልብሶችን በUSD እና ETB ዋጋ ይመልከቱ።", visualSample: "የካታሎግ ምስል", add: "ወደ ቦርሳ ያክሉ",
+    collectionBody: "ለሴቶች፣ ለወንዶች እና ለልጆች የተዘጋጁ እና በትዕዛዝ የሚሰሩ ልብሶችን በUSD እና ETB ዋጋ ይመልከቱ።", visualSample: "የካታሎግ ምስል", add: "ወደ ጋሪ ያክሉ",
     storyEyebrow: "የልብስ ስፌት ቤታችን · አዲስ አበባ", storyTitle: "በኢትዮጵያዊ ዲዛይነር፣ ለዓለም ማህበረሰብ።",
     storyBody: "NAROK DESIGN የኢትዮጵያን ባህላዊ አልባሳት ቋንቋ ወደ ዘመናዊ ልብስ ያመጣል። እያንዳንዱ ንድፍ በአዲስ አበባ ይጀምራል።",
     storyBody2: "በኢትዮጵያ፣ በውጭ አገር ለሚኖሩ ኢትዮጵያውያን እና ቅርሱን በክብር ለሚለብሱ ሁሉ እንፈጥራለን።", storyLink: "NAROK DESIGNን ይወቁ",

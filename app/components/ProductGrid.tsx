@@ -63,7 +63,7 @@ export default function ProductGrid({
                 aria-label={`${addLabel}: ${product.name[language]}`}
                 disabled={!available}
               >
-                {available ? "+" : "×"}
+                {available ? <span aria-hidden="true">🛒</span> : "×"}
               </button>
             </div>
             <div className="product-info">
