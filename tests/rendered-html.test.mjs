@@ -189,6 +189,8 @@ test("keeps only a working search icon beside every burger menu", async () => {
   assert.doesNotMatch(styles, /\.header-search-bar \{/);
   assert.match(styles, /\.search-glyph::after/);
   assert.match(styles, /\.site-header \{[^}]*height: 74px;[^}]*margin-bottom: -74px;/);
+  assert.match(styles, /\.site-header \{[^}]*border-bottom: 1px solid transparent;/);
+  assert.match(styles, /\.site-header:hover, \.site-header:focus-within, \.site-header\.scrolled \{[^}]*border-color: var\(--line\);/);
   assert.match(styles, /@media \(max-width: 720px\)[\s\S]*?\.site-header \{ height: 60px; margin-bottom: -60px;/);
 });
 
