@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { requireChatGPTUser } from "../chatgpt-auth";
+import { isAdminEmail, requireChatGPTUser } from "../chatgpt-auth";
 import AccountDashboard from "./AccountDashboard";
 import "./account.css";
 
@@ -8,6 +8,6 @@ export const metadata: Metadata = { title: "My Account — NAROK DESIGN", robots
 
 export default async function AccountPage() {
   const user = await requireChatGPTUser("/account");
-  return <AccountDashboard initialName={user.displayName} initialEmail={user.email} />;
+  return <AccountDashboard initialName={user.displayName} initialEmail={user.email} initialUserId={user.userId} initialIsAdmin={isAdminEmail(user.email)} />;
 }
 

@@ -240,7 +240,12 @@ test("persists newsletter and public/authenticated enquiries in D1", async () =>
 
   const account = await api("/api/account", { headers: customerHeaders });
   assert.equal(account.status, 200);
-  assert.equal((await account.json()).enquiries.length, 1);
+  const accountData = await account.json();
+  assert.equal(accountData.enquiries.length, 1);
+  assert.equal(accountData.profile.userId, "integration-customer");
+  assert.equal(accountData.profile.accountType, "Customer");
+  assert.equal(accountData.profile.email, "integration@example.com");
+  assert.ok(accountData.profile.memberSince);
 });
 
 test("enforces and cleans D1-backed submission rate limits", async () => {
