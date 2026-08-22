@@ -198,6 +198,20 @@ test("keeps the storefront public while protecting customer account pages", asyn
   assert.match(await customerAccount.text(), /Aster Bekele/i);
 });
 
+test("uses the admin dashboard visual system for the customer profile", async () => {
+  const [account, accountStyles, adminStyles] = await Promise.all([
+    readFile(new URL("../app/account/AccountDashboard.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/account/account.css", import.meta.url), "utf8"),
+    readFile(new URL("../app/admin/admin.css", import.meta.url), "utf8"),
+  ]);
+  assert.match(account, /account-sidebar/);
+  assert.match(account, /account-topbar/);
+  for (const color of ["#003f31", "#f7f5f0", "#fcfbf8", "#b74d24", "#d9eee4"]) {
+    assert.match(accountStyles, new RegExp(color));
+    assert.match(adminStyles, new RegExp(color));
+  }
+});
+
 const customerHeaders = {
   "content-type": "application/json",
   "oai-authenticated-user-id": "integration-customer",
