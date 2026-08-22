@@ -8,6 +8,7 @@ import { usePanelFocus } from "../hooks/usePanelFocus";
 import CustomOrderForm from "./CustomOrderForm";
 import ProductGrid from "./ProductGrid";
 import ProfileControl from "./ProfileControl";
+import SearchOverlay from "./SearchOverlay";
 import { useSiteState } from "./SiteState";
 
 type PageKind = "shop" | "collection" | "custom" | "about";
@@ -24,6 +25,7 @@ export default function InnerPage({ kind }: { kind: PageKind }) {
   const { language, setLanguage, selection, removeFromSelection, catalog, catalogLoading, settings } = useSiteState();
   const [menuOpen, setMenuOpen] = useState(false);
   const [selectionOpen, setSelectionOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState(() => typeof window === "undefined" ? "" : new URLSearchParams(window.location.search).get("q") ?? "");
   const menuRef = useRef<HTMLElement>(null);
   const selectionRef = useRef<HTMLElement>(null);
@@ -35,14 +37,14 @@ export default function InnerPage({ kind }: { kind: PageKind }) {
 
   const runSearch = (event: FormEvent) => {
     event.preventDefault();
-    if (kind === "shop") document.getElementById("catalogue")?.scrollIntoView({ behavior: "smooth" });
+    if (kind === "shop") setSearchOpen(true);
     else window.location.assign(`/shop?q=${encodeURIComponent(query.trim())}#catalogue`);
   };
 
   return (
     <main className="inner-page">
       <header className="site-header page-header scrolled">
-        <div className="header-left"><button className="header-action menu-trigger" onClick={() => setMenuOpen(true)} aria-label={language === "en" ? "Menu" : "ምናሌ"}><span className="menu-lines"><i /><i /></span>{language === "en" ? "Menu" : "ምናሌ"}</button><form className="header-search-bar" role="search" onSubmit={runSearch}><label className="visually-hidden" htmlFor={`${kind}-catalogue-search`}>{language === "en" ? "Search the catalogue" : "ካታሎጉን ይፈልጉ"}</label><span className="search-glyph" aria-hidden="true" /><input id={`${kind}-catalogue-search`} type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={language === "en" ? "Search products…" : "ልብስ ይፈልጉ…"} autoComplete="off" />{query && <button type="button" onClick={() => setQuery("")} aria-label={language === "en" ? "Clear search" : "ፍለጋውን አጽዳ"}>×</button>}</form></div>
+        <div className="header-left"><button className="header-action menu-trigger" onClick={() => setMenuOpen(true)} aria-label={language === "en" ? "Menu" : "ምናሌ"}><span className="menu-lines"><i /><i /></span>{language === "en" ? "Menu" : "ምናሌ"}</button><form className="header-search-bar" role="search" onSubmit={runSearch}><button type="button" className="header-search-launch" onClick={() => setSearchOpen(true)} aria-label={language === "en" ? "Open catalogue search" : "የካታሎግ ፍለጋን ክፈት"}><span className="search-glyph" aria-hidden="true" /></button><label className="visually-hidden" htmlFor={`${kind}-catalogue-search`}>{language === "en" ? "Search the catalogue" : "ካታሎጉን ይፈልጉ"}</label><input id={`${kind}-catalogue-search`} type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={language === "en" ? "Search products…" : "ልብስ ይፈልጉ…"} autoComplete="off" />{query && <button type="button" className="header-search-clear" onClick={() => setQuery("")} aria-label={language === "en" ? "Clear search" : "ፍለጋውን አጽዳ"}>×</button>}</form></div>
         <a className="wordmark" href="/">{settings.storeName}</a>
         <div className="header-actions"><button className="header-action selection-action" data-mobile-label={language === "en" ? "Cart" : "ጋሪ"} onClick={() => setSelectionOpen(true)}>{language === "en" ? "Cart" : "ጋሪ"} <span>{selection.length}</span></button><ProfileControl language={language} /></div>
       </header>
@@ -58,6 +60,7 @@ export default function InnerPage({ kind }: { kind: PageKind }) {
       <button className={`panel-backdrop ${menuOpen || selectionOpen ? "visible" : ""}`} onClick={() => { closeMenu(); closeSelection(); }} aria-label="Close panel" />
       <aside ref={menuRef} className={`side-panel menu-panel ${menuOpen ? "open" : ""}`} aria-hidden={!menuOpen} role="dialog" aria-modal="true" aria-labelledby="inner-menu-title"><button className="panel-close" onClick={closeMenu} aria-label="Close menu">×</button><p className="panel-label" id="inner-menu-title">{language === "en" ? "Explore NAROK DESIGN" : "NAROK DESIGNን ያስሱ"}</p><nav>{menuLabels[language].map((label, index) => <a className={[routes[index].includes(kind === "custom" ? "custom-orders" : kind) ? "current" : "", routes[index] === "/admin" ? "menu-admin-entry" : ""].filter(Boolean).join(" ")} href={routes[index]} key={label}>{label}<span>0{index + 1}</span></a>)}</nav><div className="panel-meta"><button onClick={() => setLanguage(language === "en" ? "am" : "en")}>{language === "en" ? "አማርኛ" : "English"}</button><a href="/">Home</a></div></aside>
       <aside ref={selectionRef} className={`side-panel cart-panel ${selectionOpen ? "open" : ""}`} aria-hidden={!selectionOpen} role="dialog" aria-modal="true" aria-labelledby="inner-selection-title"><button className="panel-close" onClick={closeSelection} aria-label="Close bag">×</button><p className="panel-label" id="inner-selection-title">{language === "en" ? "Your shopping bag" : "የግዢ ቦርሳዎ"} · {selection.length}</p>{selection.length === 0 ? <div className="empty-bag"><p>{language === "en" ? "Your shopping bag is ready for a piece you love." : "የግዢ ቦርሳዎ ለሚወዱት ልብስ ዝግጁ ነው።"}</p></div> : <><div className="bag-items">{selection.map((productId, index) => { const item = catalog.find((product) => product.id === productId); return item ? <div key={`${item.id}-${index}`}><span>{String(index + 1).padStart(2, "0")}</span><p>{item.name[language]}<small>${item.usd} USD · {item.etb.toLocaleString()} ETB</small></p><button onClick={() => removeFromSelection(index)} aria-label={`Remove ${item.name[language]}`}>×</button></div> : null; })}</div><p className="checkout-note">{language === "en" ? "Choose Telebirr, bank transfer or pay on delivery at checkout." : "በክፍያ ጊዜ Telebirr፣ የባንክ ዝውውር ወይም በመላኪያ ጊዜ ክፍያ ይምረጡ።"}</p><a className="checkout" href="/checkout">{language === "en" ? "Checkout securely" : "በደህና ይክፈሉ"}</a></>}</aside>
+      <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} language={language} catalog={catalog} loading={catalogLoading} query={query} setQuery={setQuery} storeName={settings.storeName} />
     </main>
   );
 }

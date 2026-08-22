@@ -185,6 +185,28 @@ test("provides a working catalogue search bar beside every burger menu", async (
   assert.match(styles, /\.search-glyph::after/);
 });
 
+test("opens a full-screen live catalogue from every search icon", async () => {
+  const [home, inner, overlay, focusHook, styles] = await Promise.all([
+    readFile(new URL("app/page.tsx", root), "utf8"),
+    readFile(new URL("app/components/InnerPage.tsx", root), "utf8"),
+    readFile(new URL("app/components/SearchOverlay.tsx", root), "utf8"),
+    readFile(new URL("app/hooks/usePanelFocus.ts", root), "utf8"),
+    readFile(new URL("app/globals.css", root), "utf8"),
+  ]);
+  for (const source of [home, inner]) {
+    assert.match(source, /className="header-search-launch" onClick=\{\(\) => setSearchOpen\(true\)\}/);
+    assert.match(source, /<SearchOverlay open=\{searchOpen\}/);
+  }
+  assert.match(overlay, /className="catalogue-search-overlay" role="dialog" aria-modal="true"/);
+  assert.match(overlay, /Suggested searches/);
+  assert.match(overlay, /filteredProducts/);
+  assert.match(overlay, /<ProductGrid products=\{filteredProducts\}/);
+  assert.match(overlay, /data-panel-autofocus/);
+  assert.match(focusHook, /data-panel-autofocus/);
+  assert.match(styles, /\.catalogue-search-overlay \{/);
+  assert.match(styles, /body:has\(\.catalogue-search-overlay\)/);
+});
+
 test("removes the announcement strip from every public storefront layout", async () => {
   const [home, inner, styles] = await Promise.all([
     readFile(new URL("app/page.tsx", root), "utf8"),

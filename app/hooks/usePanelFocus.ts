@@ -12,7 +12,7 @@ export function usePanelFocus(
     const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const panel = panelRef.current;
     const focusableSelector = "a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])";
-    const first = panel.querySelector<HTMLElement>(focusableSelector);
+    const first = panel.querySelector<HTMLElement>("[data-panel-autofocus]") ?? panel.querySelector<HTMLElement>(focusableSelector);
     first?.focus();
 
     const handleKeyDown = (event: KeyboardEvent) => {

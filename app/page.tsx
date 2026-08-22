@@ -6,6 +6,7 @@ import CustomOrderForm from "./components/CustomOrderForm";
 import NewsletterForm from "./components/NewsletterForm";
 import ProductGrid from "./components/ProductGrid";
 import ProfileControl from "./components/ProfileControl";
+import SearchOverlay from "./components/SearchOverlay";
 import { useSiteState } from "./components/SiteState";
 import { Category } from "./data/catalog";
 import { usePanelFocus } from "./hooks/usePanelFocus";
@@ -60,6 +61,7 @@ export default function Home() {
   const { language, setLanguage, selection, removeFromSelection, wishlist, catalog, catalogLoading, settings } = useSiteState();
   const [category, setCategory] = useState<Category>("all");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [headerScrolled, setHeaderScrolled] = useState(false);
   const [query, setQuery] = useState("");
@@ -86,7 +88,7 @@ export default function Home() {
   const closeMenu = useCallback(() => setMenuOpen(false), []);
   const closeSelection = useCallback(() => setCartOpen(false), []);
   const closePanels = useCallback(() => { closeMenu(); closeSelection(); }, [closeMenu, closeSelection]);
-  const runSearch = (event: FormEvent) => { event.preventDefault(); setCategory("all"); document.getElementById("shop")?.scrollIntoView({ behavior: "smooth" }); };
+  const runSearch = (event: FormEvent) => { event.preventDefault(); setCategory("all"); setSearchOpen(true); };
 
   usePanelFocus(menuOpen, menuRef, closeMenu);
   usePanelFocus(cartOpen, selectionRef, closeSelection);
@@ -94,7 +96,7 @@ export default function Home() {
   return (
     <main>
       <header className={`site-header ${headerScrolled ? "scrolled" : ""}`}>
-        <div className="header-left"><button className="header-action menu-trigger" onClick={() => setMenuOpen(true)} aria-label={t.menu}><span className="menu-lines"><i /><i /></span>{t.menu}</button><form className="header-search-bar" role="search" onSubmit={runSearch}><label className="visually-hidden" htmlFor="home-catalogue-search">{t.panelSearch}</label><span className="search-glyph" aria-hidden="true" /><input id="home-catalogue-search" type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t.searchPlaceholder} autoComplete="off" />{query && <button type="button" onClick={() => setQuery("")} aria-label={language === "en" ? "Clear search" : "ፍለጋውን አጽዳ"}>×</button>}</form></div>
+        <div className="header-left"><button className="header-action menu-trigger" onClick={() => setMenuOpen(true)} aria-label={t.menu}><span className="menu-lines"><i /><i /></span>{t.menu}</button><form className="header-search-bar" role="search" onSubmit={runSearch}><button type="button" className="header-search-launch" onClick={() => setSearchOpen(true)} aria-label={t.panelSearch}><span className="search-glyph" aria-hidden="true" /></button><label className="visually-hidden" htmlFor="home-catalogue-search">{t.panelSearch}</label><input id="home-catalogue-search" type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t.searchPlaceholder} autoComplete="off" />{query && <button type="button" className="header-search-clear" onClick={() => setQuery("")} aria-label={language === "en" ? "Clear search" : "ፍለጋውን አጽዳ"}>×</button>}</form></div>
         <a className="wordmark" href="#home">{settings.storeName}</a>
         <div className="header-actions"><button className="header-action wishlist-header" onClick={() => document.getElementById("shop")?.scrollIntoView({ behavior: "smooth" })} aria-label={language === "en" ? `${wishlist.length} saved pieces` : `${wishlist.length} የተቀመጡ ልብሶች`}>♡ <span>{wishlist.length}</span></button><button className="header-action selection-action" data-mobile-label={t.bag} onClick={() => setCartOpen(true)}>{t.bag} <span>{selection.length}</span></button><ProfileControl language={language} /></div>
       </header>
@@ -123,6 +125,7 @@ export default function Home() {
       <button className={`panel-backdrop ${menuOpen || cartOpen ? "visible" : ""}`} onClick={closePanels} aria-label="Close open panel" />
       <aside ref={menuRef} className={`side-panel menu-panel ${menuOpen ? "open" : ""}`} aria-hidden={!menuOpen} role="dialog" aria-modal="true" aria-labelledby="menu-panel-title"><button className="panel-close" onClick={closeMenu} aria-label="Close menu">×</button><p className="panel-label" id="menu-panel-title">{t.panelMenu}</p><nav>{t.nav.map((item, index) => <a className={t.navHrefs[index] === "/admin" ? "menu-admin-entry" : undefined} href={t.navHrefs[index]} onClick={closeMenu} key={item}>{item}<span>0{index + 1}</span></a>)}</nav><div className="panel-meta"><button onClick={() => setLanguage(language === "en" ? "am" : "en")}>{language === "en" ? "አማርኛ" : "English"}</button><a href="#custom" onClick={closeMenu}>Addis Ababa</a></div></aside>
       <aside ref={selectionRef} className={`side-panel cart-panel ${cartOpen ? "open" : ""}`} aria-hidden={!cartOpen} role="dialog" aria-modal="true" aria-labelledby="selection-panel-title"><button className="panel-close" onClick={closeSelection} aria-label="Close bag">×</button><p className="panel-label" id="selection-panel-title">{t.bagTitle} · {selection.length}</p>{selection.length === 0 ? <div className="empty-bag"><div><p>{t.emptyBag}</p><button onClick={() => { closeSelection(); document.getElementById("shop")?.scrollIntoView({ behavior: "smooth" }); }}>{t.continueShopping}</button></div></div> : <><div className="bag-items">{selection.map((productId, index) => { const item = catalog.find((product) => product.id === productId); return item ? <div key={`${item.id}-${index}`}><span>{String(index + 1).padStart(2, "0")}</span><p>{item.name[language]}<small>${item.usd} USD · {item.etb.toLocaleString()} ETB</small></p><button onClick={() => removeFromSelection(index)} aria-label={`Remove ${item.name[language]}`}>×</button></div> : null; })}</div><a className="checkout" href="/checkout">{t.checkout}</a><p className="checkout-note static-note">{t.checkoutDemo}</p></>}</aside>
+      <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} language={language} catalog={catalog} loading={catalogLoading} query={query} setQuery={setQuery} storeName={settings.storeName} />
     </main>
   );
 }
