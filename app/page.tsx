@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import CustomOrderForm from "./components/CustomOrderForm";
 import NewsletterForm from "./components/NewsletterForm";
@@ -88,15 +88,13 @@ export default function Home() {
   const closeMenu = useCallback(() => setMenuOpen(false), []);
   const closeSelection = useCallback(() => setCartOpen(false), []);
   const closePanels = useCallback(() => { closeMenu(); closeSelection(); }, [closeMenu, closeSelection]);
-  const runSearch = (event: FormEvent) => { event.preventDefault(); setCategory("all"); setSearchOpen(true); };
-
   usePanelFocus(menuOpen, menuRef, closeMenu);
   usePanelFocus(cartOpen, selectionRef, closeSelection);
 
   return (
     <main>
       <header className={`site-header ${headerScrolled ? "scrolled" : ""}`}>
-        <div className="header-left"><button className="header-action menu-trigger" onClick={() => setMenuOpen(true)} aria-label={t.menu}><span className="menu-lines"><i /><i /></span>{t.menu}</button><form className="header-search-bar" role="search" onSubmit={runSearch}><button type="button" className="header-search-launch" onClick={() => setSearchOpen(true)} aria-label={t.panelSearch}><span className="search-glyph" aria-hidden="true" /></button><label className="visually-hidden" htmlFor="home-catalogue-search">{t.panelSearch}</label><input id="home-catalogue-search" type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t.searchPlaceholder} autoComplete="off" />{query && <button type="button" className="header-search-clear" onClick={() => setQuery("")} aria-label={language === "en" ? "Clear search" : "ፍለጋውን አጽዳ"}>×</button>}</form></div>
+        <div className="header-left"><button className="header-action menu-trigger" onClick={() => setMenuOpen(true)} aria-label={t.menu}><span className="menu-lines"><i /><i /></span>{t.menu}</button><button type="button" className="header-action header-search-launch" onClick={() => setSearchOpen(true)} aria-label={t.panelSearch}><span className="search-glyph" aria-hidden="true" /></button></div>
         <a className="wordmark" href="#home">{settings.storeName}</a>
         <div className="header-actions"><button className="header-action wishlist-header" onClick={() => document.getElementById("shop")?.scrollIntoView({ behavior: "smooth" })} aria-label={language === "en" ? `${wishlist.length} saved pieces` : `${wishlist.length} የተቀመጡ ልብሶች`}>♡ <span>{wishlist.length}</span></button><button className="header-action selection-action" data-mobile-label={t.bag} onClick={() => setCartOpen(true)}>{t.bag} <span>{selection.length}</span></button><ProfileControl language={language} /></div>
       </header>

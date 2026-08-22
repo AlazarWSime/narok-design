@@ -1,7 +1,7 @@
 "use client";
 /* eslint-disable @next/next/no-html-link-for-pages -- vinext client navigation currently requires plain anchors */
 
-import { FormEvent, useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import Image from "next/image";
 import type { Category, Language, Product } from "../data/catalog";
 import { usePanelFocus } from "../hooks/usePanelFocus";
@@ -35,16 +35,10 @@ export default function InnerPage({ kind }: { kind: PageKind }) {
   usePanelFocus(selectionOpen, selectionRef, closeSelection);
   const copy = pageCopy[kind][language];
 
-  const runSearch = (event: FormEvent) => {
-    event.preventDefault();
-    if (kind === "shop") setSearchOpen(true);
-    else window.location.assign(`/shop?q=${encodeURIComponent(query.trim())}#catalogue`);
-  };
-
   return (
     <main className="inner-page">
       <header className="site-header page-header scrolled">
-        <div className="header-left"><button className="header-action menu-trigger" onClick={() => setMenuOpen(true)} aria-label={language === "en" ? "Menu" : "ምናሌ"}><span className="menu-lines"><i /><i /></span>{language === "en" ? "Menu" : "ምናሌ"}</button><form className="header-search-bar" role="search" onSubmit={runSearch}><button type="button" className="header-search-launch" onClick={() => setSearchOpen(true)} aria-label={language === "en" ? "Open catalogue search" : "የካታሎግ ፍለጋን ክፈት"}><span className="search-glyph" aria-hidden="true" /></button><label className="visually-hidden" htmlFor={`${kind}-catalogue-search`}>{language === "en" ? "Search the catalogue" : "ካታሎጉን ይፈልጉ"}</label><input id={`${kind}-catalogue-search`} type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={language === "en" ? "Search products…" : "ልብስ ይፈልጉ…"} autoComplete="off" />{query && <button type="button" className="header-search-clear" onClick={() => setQuery("")} aria-label={language === "en" ? "Clear search" : "ፍለጋውን አጽዳ"}>×</button>}</form></div>
+        <div className="header-left"><button className="header-action menu-trigger" onClick={() => setMenuOpen(true)} aria-label={language === "en" ? "Menu" : "ምናሌ"}><span className="menu-lines"><i /><i /></span>{language === "en" ? "Menu" : "ምናሌ"}</button><button type="button" className="header-action header-search-launch" onClick={() => setSearchOpen(true)} aria-label={language === "en" ? "Open catalogue search" : "የካታሎግ ፍለጋን ክፈት"}><span className="search-glyph" aria-hidden="true" /></button></div>
         <a className="wordmark" href="/">{settings.storeName}</a>
         <div className="header-actions"><button className="header-action selection-action" data-mobile-label={language === "en" ? "Cart" : "ጋሪ"} onClick={() => setSelectionOpen(true)}>{language === "en" ? "Cart" : "ጋሪ"} <span>{selection.length}</span></button><ProfileControl language={language} /></div>
       </header>

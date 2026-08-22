@@ -169,19 +169,23 @@ test("includes a distinct admin section in every burger menu", async () => {
   assert.match(styles, /\.menu-panel nav a\.menu-admin-entry/);
 });
 
-test("provides a working catalogue search bar beside every burger menu", async () => {
+test("keeps only a working search icon beside every burger menu", async () => {
   const [home, inner, styles] = await Promise.all([
     readFile(new URL("app/page.tsx", root), "utf8"),
     readFile(new URL("app/components/InnerPage.tsx", root), "utf8"),
     readFile(new URL("app/globals.css", root), "utf8"),
   ]);
-  assert.match(home, /className="header-left"><button className="header-action menu-trigger"[\s\S]*?<form className="header-search-bar" role="search" onSubmit=\{runSearch\}/);
-  assert.match(inner, /className="header-left"><button className="header-action menu-trigger"[\s\S]*?<form className="header-search-bar" role="search" onSubmit=\{runSearch\}/);
+  assert.match(home, /className="header-left"><button className="header-action menu-trigger"[\s\S]*?<button type="button" className="header-action header-search-launch"/);
+  assert.match(inner, /className="header-left"><button className="header-action menu-trigger"[\s\S]*?<button type="button" className="header-action header-search-launch"/);
   assert.match(home, /product\.sku \?\? ""/);
   assert.match(inner, /<ShopContent[\s\S]*?query=\{query\}/);
   assert.match(inner, /product\.name\.en[\s\S]*?product\.type\.am[\s\S]*?product\.sku/);
-  for (const source of [home, inner]) assert.doesNotMatch(source, /header-search-trigger/);
-  assert.match(styles, /\.header-search-bar \{/);
+  for (const source of [home, inner]) {
+    assert.doesNotMatch(source, /header-search-trigger/);
+    assert.doesNotMatch(source, /header-search-bar/);
+  }
+  assert.match(styles, /\.header-search-launch \{/);
+  assert.doesNotMatch(styles, /\.header-search-bar \{/);
   assert.match(styles, /\.search-glyph::after/);
 });
 
@@ -194,7 +198,7 @@ test("opens a full-screen live catalogue from every search icon", async () => {
     readFile(new URL("app/globals.css", root), "utf8"),
   ]);
   for (const source of [home, inner]) {
-    assert.match(source, /className="header-search-launch" onClick=\{\(\) => setSearchOpen\(true\)\}/);
+    assert.match(source, /className="header-action header-search-launch" onClick=\{\(\) => setSearchOpen\(true\)\}/);
     assert.match(source, /<SearchOverlay open=\{searchOpen\}/);
   }
   assert.match(overlay, /className="catalogue-search-overlay" role="dialog" aria-modal="true"/);
