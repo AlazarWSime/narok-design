@@ -38,7 +38,6 @@ img { display: block; width: 100%; }
 .profile-glyph::after { content: ""; position: absolute; right: 6px; bottom: 6px; left: 6px; height: 7px; border: 1px solid currentColor; border-bottom: 0; border-radius: 10px 10px 0 0; }
 .profile-copy { display: flex; flex-direction: column; font-size: 8px; font-weight: 700; letter-spacing: .1em; line-height: 1.2; text-transform: uppercase; white-space: nowrap; }
 .profile-copy small { max-width: 105px; margin-top: 3px; overflow: hidden; font-size: 7px; font-weight: 400; letter-spacing: .04em; text-overflow: ellipsis; text-transform: none; }
-.admin-profile-link .profile-glyph { color: white; background: var(--green); border-color: var(--green); }
 .menu-trigger { justify-self: start; }
 .menu-lines { width: 19px; display: flex; flex-direction: column; gap: 5px; }
 .menu-lines i { height: 1px; display: block; background: currentColor; }

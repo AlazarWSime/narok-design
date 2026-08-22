@@ -129,7 +129,7 @@ test("protects the private admin workspace and exposes all requested sections", 
   assert.match(auth, /ADMIN_EMAILS/);
 });
 
-test("exposes the admin-aware profile session without trusting the client", async () => {
+test("keeps the profile control account-focused while exposing server-authorized admin state", async () => {
   const previousAdminEmails = process.env.ADMIN_EMAILS;
   process.env.ADMIN_EMAILS = "owner@example.com";
   const response = await request("/api/session", { headers: {
@@ -149,8 +149,9 @@ test("exposes the admin-aware profile session without trusting the client", asyn
   ]);
   assert.match(home, /ProfileControl/);
   assert.match(inner, /ProfileControl/);
-  assert.match(control, /Admin dashboard/);
-  assert.match(control, /href="\/admin"/);
+  assert.match(control, /My account/);
+  assert.match(control, /href="\/account"/);
+  assert.doesNotMatch(control, /admin-profile-link|Admin dashboard/);
 });
 
 test("includes a distinct admin section in every burger menu", async () => {
