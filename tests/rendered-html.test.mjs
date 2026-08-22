@@ -188,6 +188,8 @@ test("keeps only a working search icon beside every burger menu", async () => {
   assert.match(styles, /\.header-search-launch \{/);
   assert.doesNotMatch(styles, /\.header-search-bar \{/);
   assert.match(styles, /\.search-glyph::after/);
+  assert.match(styles, /\.site-header \{[^}]*height: 74px;[^}]*margin-bottom: -74px;/);
+  assert.match(styles, /@media \(max-width: 720px\)[\s\S]*?\.site-header \{ height: 60px; margin-bottom: -60px;/);
 });
 
 test("opens a full-screen live catalogue from every search icon", async () => {
