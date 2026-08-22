@@ -2,6 +2,7 @@ import { index, integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqli
 
 export const customOrders = sqliteTable("custom_orders", {
   id: text("id").primaryKey(),
+  userId: text("user_id"),
   fullName: text("full_name").notNull(),
   contact: text("contact").notNull(),
   garment: text("garment").notNull(),
@@ -17,6 +18,7 @@ export const customOrders = sqliteTable("custom_orders", {
   createdAt: text("created_at").notNull(),
 }, (table) => [
   index("idx_custom_orders_status_created_at").on(table.status, table.createdAt),
+  index("idx_custom_orders_user_id_created_at").on(table.userId, table.createdAt),
 ]);
 
 export const newsletterSubscribers = sqliteTable("newsletter_subscribers", {
@@ -59,6 +61,7 @@ export const catalogProducts = sqliteTable("catalog_products", {
 
 export const clientOrders = sqliteTable("client_orders", {
   id: text("id").primaryKey(),
+  sourceEnquiryId: text("source_enquiry_id"),
   orderNumber: text("order_number").notNull(),
   clientName: text("client_name").notNull(),
   clientContact: text("client_contact").notNull(),
@@ -69,6 +72,7 @@ export const clientOrders = sqliteTable("client_orders", {
   updatedAt: text("updated_at").notNull(),
 }, (table) => [
   uniqueIndex("idx_client_orders_number").on(table.orderNumber),
+  uniqueIndex("idx_client_orders_source_enquiry_id").on(table.sourceEnquiryId),
   index("idx_client_orders_status_created_at").on(table.status, table.createdAt),
 ]);
 

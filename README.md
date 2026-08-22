@@ -6,7 +6,7 @@ A bilingual English/Amharic catalogue and atelier-enquiry site for Ethiopian tra
 
 - presents ready-made and made-to-order clothing for women, men and children;
 - keeps language, saved pieces and the visitor's enquiry selection across routes and browser sessions;
-- stores custom-order enquiries and newsletter subscriptions in Cloudflare D1;
+- stores the catalogue, custom-order enquiries, confirmed client orders, storefront settings and newsletter subscriptions in Cloudflare D1;
 - rate-limits public submissions and uses honeypot fields to reduce automated spam;
 - makes it explicit that the atelier confirms fabric, timing and price directly and that no online payment is taken;
 - serves project-owned catalogue artwork through the image-optimization route.
@@ -20,7 +20,13 @@ npm ci
 npm run dev
 ```
 
-Copy `.env.example` to `.env.local` when testing absolute social metadata on a custom origin.
+Copy `.env.example` to `.env.local` and configure:
+
+- `SITE_URL` — the trusted public origin used for absolute social-preview URLs;
+- `ADMIN_EMAILS` — a comma-separated, case-insensitive allowlist for the private atelier workspace;
+- `CUSTOM_ORDER_RETENTION_DAYS` — how long completed or declined bespoke enquiries are retained (default `730`, minimum `30`, maximum `3650`).
+
+Set the same values in the hosted Sites environment before publishing. Never commit real administrator addresses or secrets in `.env` files.
 
 ## Validation
 
@@ -30,7 +36,13 @@ npm run build
 npm test
 ```
 
-`npm test` builds the deployment worker and verifies all five public routes, social metadata, API validation, owned image references and the D1 binding.
+Run the complete validation sequence with:
+
+```bash
+npm run validate
+```
+
+This performs strict TypeScript checking, linting, a deployment build, public route checks, and Miniflare-backed D1 integration tests for persistence, account ownership, rate limiting, authorization, settings, and enquiry-to-order conversion.
 
 ## Persistence
 
@@ -38,7 +50,15 @@ The logical D1 binding is `DB` in `.openai/hosting.json`. The application initia
 
 - `custom_orders` — atelier enquiries and selected catalogue pieces;
 - `newsletter_subscribers` — unique subscriber email addresses;
-- `submission_rate_limits` — short-lived hashed visitor counters.
+- `submission_rate_limits` — short-lived hashed visitor counters;
+- `catalog_products` — the single live source for the public catalogue;
+- `client_orders` — quoted orders converted from atelier enquiries;
+- `store_settings` — public store name, announcement, currency and shipping threshold;
+- `customer_profiles` — ChatGPT-authenticated customer identities.
+
+Authenticated enquiries are linked to the stable Site user ID, including when the customer supplies a WhatsApp number. Public enquiries remain available without sign-in and can later match an account only when their contact value is the same verified email.
+
+Expired rate-limit rows are removed during submissions and runtime initialization. Completed or declined bespoke enquiries older than `CUSTOM_ORDER_RETENTION_DAYS` are removed during runtime initialization. Active enquiries, confirmed client orders, and newsletter subscriptions are retained until an administrator handles them according to the atelier's operating policy.
 
 After changing `db/schema.ts`, generate and inspect a new migration:
 
@@ -48,7 +68,7 @@ npm run db:generate
 
 ## Key project areas
 
-- `app/data/catalog.ts` — canonical product catalogue;
+- `app/data/catalog.ts` — shared catalogue and storefront TypeScript contracts;
 - `app/components/SiteState.tsx` — device-local language, wishlist and enquiry selection;
 - `app/api/` — validated D1-backed submission endpoints;
 - `db/` and `drizzle/` — schema, runtime initialization and migrations;

@@ -57,6 +57,40 @@ export async function POST(request: Request) {
     return Response.json({ ok: true });
   }
 
+  if (payload.action === "bespoke.convert") {
+    const id = text(payload.id, 80), totalEtb = integer(payload.totalEtb, 1);
+    if (!id || totalEtb === null) return Response.json({ error: "Enter a valid quoted total" }, { status: 400 });
+    const enquiry = await db.prepare(`SELECT id, full_name AS fullName, contact, garment, selected_product_ids AS selectedProductIds
+      FROM custom_orders WHERE id = ? LIMIT 1`).bind(id).first<{ id: string; fullName: string; contact: string; garment: string; selectedProductIds: string }>();
+    if (!enquiry) return Response.json({ error: "Enquiry not found" }, { status: 404 });
+    const existing = await db.prepare("SELECT order_number AS orderNumber FROM client_orders WHERE source_enquiry_id = ? LIMIT 1")
+      .bind(id).first<{ orderNumber: string }>();
+    if (existing) return Response.json({ error: `Already converted to ${existing.orderNumber}` }, { status: 409 });
+    let selectedIds: number[] = [];
+    try {
+      const parsed = JSON.parse(enquiry.selectedProductIds);
+      if (Array.isArray(parsed)) selectedIds = parsed.filter((value): value is number => Number.isInteger(value));
+    } catch { selectedIds = []; }
+    const productRows = await db.prepare("SELECT id, sku, name_en AS nameEn FROM catalog_products ORDER BY id")
+      .all<{ id: number; sku: string; nameEn: string }>();
+    const productById = new Map(productRows.results.map((product) => [product.id, product]));
+    const selected = selectedIds.map((productId) => productById.get(productId)).filter((product): product is { id: number; sku: string; nameEn: string } => Boolean(product));
+    const items = selected.length
+      ? selected.map((product) => ({ productId: product.id, sku: product.sku, name: product.nameEn }))
+      : [{ productId: null, sku: "CUSTOM", name: enquiry.garment }];
+    const orderId = crypto.randomUUID();
+    const orderNumber = `ND-${now.slice(0, 10).replaceAll("-", "")}-${orderId.slice(0, 6).toUpperCase()}`;
+    try {
+      await db.batch([
+        db.prepare(`INSERT INTO client_orders (id, source_enquiry_id, order_number, client_name, client_contact,
+          items_json, total_etb, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, 'confirmed', ?, ?)`)
+          .bind(orderId, id, orderNumber, enquiry.fullName, enquiry.contact, JSON.stringify(items), totalEtb, now, now),
+        db.prepare("UPDATE custom_orders SET status = 'in_progress' WHERE id = ?").bind(id),
+      ]);
+      return Response.json({ ok: true, orderNumber }, { status: 201 });
+    } catch { return Response.json({ error: "This enquiry could not be converted" }, { status: 409 }); }
+  }
+
   if (payload.action === "order.update") {
     const id = text(payload.id, 80), status = text(payload.status);
     if (!id || !orderStatuses.has(status)) return Response.json({ error: "Invalid order update" }, { status: 400 });
@@ -65,9 +99,10 @@ export async function POST(request: Request) {
   }
 
   if (payload.action === "settings.update") {
-    const allowed = ["storeName", "announcement", "shippingThresholdEtb", "currency"];
-    const updates = allowed.map((key) => [key, text(payload[key], key === "announcement" ? 240 : 80)] as const);
-    if (updates.some(([, value]) => !value)) return Response.json({ error: "Complete all store settings" }, { status: 400 });
+    const storeName = text(payload.storeName, 80), announcement = text(payload.announcement, 240);
+    const shippingThresholdEtb = integer(payload.shippingThresholdEtb), currency = text(payload.currency, 3);
+    if (!storeName || !announcement || shippingThresholdEtb === null || !["ETB", "USD"].includes(currency)) return Response.json({ error: "Complete all store settings" }, { status: 400 });
+    const updates = [["storeName", storeName], ["announcement", announcement], ["shippingThresholdEtb", String(shippingThresholdEtb)], ["currency", currency]] as const;
     await db.batch(updates.map(([key, value]) => db.prepare(`INSERT INTO store_settings (key, value, updated_at) VALUES (?, ?, ?)
       ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at`).bind(key, value, now)));
     return Response.json({ ok: true });

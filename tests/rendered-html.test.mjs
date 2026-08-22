@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
-import test from "node:test";
+import { readFile, readdir } from "node:fs/promises";
+import test, { after } from "node:test";
+import { fileURLToPath } from "node:url";
+import { Miniflare } from "miniflare";
 import { normalizeNewsletterEmail, validateCustomOrder } from "../app/lib/submissionValidation.ts";
 
 const root = new URL("../", import.meta.url);
@@ -19,6 +21,40 @@ async function request(pathname, init = {}) {
     { waitUntil() {}, passThroughOnException() {} },
   );
 }
+
+let miniflare;
+async function getMiniflare() {
+  if (!miniflare) {
+    const serverRoot = fileURLToPath(new URL("../dist/server/", import.meta.url));
+    const modulePaths = (await readdir(serverRoot, { recursive: true })).filter((name) => name.endsWith(".js"));
+    const modules = Object.fromEntries(await Promise.all(modulePaths.map(async (name) => [name.replaceAll("\\", "/"), { type: "esm", contents: await readFile(new URL(`../dist/server/${name.replaceAll("\\", "/")}`, import.meta.url), "utf8") }])));
+    miniflare = new Miniflare({ workers: [{ config: {
+      name: "narok-integration",
+      type: "worker",
+      compatibilityDate: "2026-08-21",
+      compatibilityFlags: ["nodejs_compat"],
+      manifest: { mainModule: "index.js", modulesRoot: serverRoot, modules },
+      env: {
+        DB: { type: "d1", name: "narok-integration" },
+        ADMIN_EMAILS: { type: "text", value: "owner@example.com" },
+        CUSTOM_ORDER_RETENTION_DAYS: { type: "text", value: "730" },
+        SITE_URL: { type: "text", value: "http://localhost" },
+      },
+    } }] });
+    await miniflare.ready;
+  }
+  return miniflare;
+}
+
+async function api(pathname, init = {}) {
+  const runtime = await getMiniflare();
+  return runtime.dispatchFetch(`http://localhost${pathname}`, {
+    ...init,
+    headers: { accept: "application/json", ...init.headers },
+  });
+}
+
+after(async () => { if (miniflare) await miniflare.dispose(); });
 
 for (const [pathname, expected] of [
   ["/", "Ethiopian Heritage, Made for the World"],
@@ -56,15 +92,16 @@ test("validates and normalizes public submissions", () => {
 });
 
 test("uses owned catalogue assets and enables D1 persistence", async () => {
-  const [catalogue, hosting, layout, home, inner] = await Promise.all([
+  const [catalogue, runtime, hosting, layout, home, inner] = await Promise.all([
     readFile(new URL("app/data/catalog.ts", root), "utf8"),
+    readFile(new URL("db/runtime.ts", root), "utf8"),
     readFile(new URL(".openai/hosting.json", root), "utf8"),
     readFile(new URL("app/layout.tsx", root), "utf8"),
     readFile(new URL("app/page.tsx", root), "utf8"),
     readFile(new URL("app/components/InnerPage.tsx", root), "utf8"),
   ]);
   assert.doesNotMatch(catalogue, /https?:\/\//);
-  assert.match(catalogue, /narok-women\.png/);
+  assert.match(runtime, /narok-women\.png/);
   assert.equal(JSON.parse(hosting).d1, "DB");
   assert.doesNotMatch(layout, /x-forwarded-host|headers\(\)/);
   assert.match(home, /role="dialog"/);
@@ -125,4 +162,90 @@ test("keeps the storefront public while protecting customer account pages", asyn
   } });
   assert.equal(customerAccount.status, 200);
   assert.match(await customerAccount.text(), /Aster Bekele/i);
+});
+
+const customerHeaders = {
+  "content-type": "application/json",
+  "oai-authenticated-user-id": "integration-customer",
+  "oai-authenticated-user-email": "integration@example.com",
+  "oai-authenticated-user-full-name": "Integration%20Customer",
+  "oai-authenticated-user-full-name-encoding": "percent-encoded-utf-8",
+};
+const adminHeaders = {
+  "content-type": "application/json",
+  "oai-authenticated-user-id": "integration-owner",
+  "oai-authenticated-user-email": "owner@example.com",
+  "oai-authenticated-user-full-name": "Narok%20Owner",
+  "oai-authenticated-user-full-name-encoding": "percent-encoded-utf-8",
+};
+const validOrder = {
+  name: "Integration Customer",
+  contact: "+251900000000",
+  garment: "Women’s Habesha kemis",
+  measurements: "Height 170, chest 92",
+  color: "Ivory",
+  fabric: "Handwoven cotton",
+  selectedProductIds: [1, 2],
+};
+
+test("persists newsletter and public/authenticated enquiries in D1", async () => {
+  const runtime = await getMiniflare();
+  const db = await runtime.getD1Database("DB");
+  const newsletter = await api("/api/newsletter", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email: "D1@example.com", language: "am" }) });
+  assert.equal(newsletter.status, 201);
+  assert.deepEqual(await db.prepare("SELECT email, language FROM newsletter_subscribers WHERE email = ?").bind("d1@example.com").first(), { email: "d1@example.com", language: "am" });
+
+  const publicEnquiry = await api("/api/custom-orders", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ...validOrder, name: "Public Customer", contact: "public@example.com" }) });
+  assert.equal(publicEnquiry.status, 201);
+  assert.equal((await publicEnquiry.json()).ownership, "public");
+  const authenticatedEnquiry = await api("/api/custom-orders", { method: "POST", headers: customerHeaders, body: JSON.stringify(validOrder) });
+  assert.equal(authenticatedEnquiry.status, 201);
+  assert.equal((await authenticatedEnquiry.json()).ownership, "account");
+  const owned = await db.prepare("SELECT user_id AS userId, contact FROM custom_orders WHERE user_id = ?").bind("integration-customer").first();
+  assert.deepEqual(owned, { userId: "integration-customer", contact: "+251900000000" });
+
+  const account = await api("/api/account", { headers: customerHeaders });
+  assert.equal(account.status, 200);
+  assert.equal((await account.json()).enquiries.length, 1);
+});
+
+test("enforces and cleans D1-backed submission rate limits", async () => {
+  const runtime = await getMiniflare();
+  const db = await runtime.getD1Database("DB");
+  await db.prepare("DELETE FROM submission_rate_limits").run();
+  await db.prepare("INSERT INTO submission_rate_limits (key, attempts, reset_at) VALUES ('expired:test', 99, 1)").run();
+  const statuses = [];
+  for (let attempt = 0; attempt < 6; attempt += 1) {
+    const response = await api("/api/custom-orders", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ...validOrder, name: `Rate Test ${attempt}` }) });
+    statuses.push(response.status);
+  }
+  assert.deepEqual(statuses, [201, 201, 201, 201, 201, 429]);
+  assert.equal(await db.prepare("SELECT COUNT(*) AS count FROM submission_rate_limits WHERE key = 'expired:test'").first("count"), 0);
+});
+
+test("enforces admin authorization and applies catalogue settings", async () => {
+  assert.equal((await api("/api/admin/dashboard")).status, 401);
+  assert.equal((await api("/api/admin/dashboard", { headers: customerHeaders })).status, 403);
+  assert.equal((await api("/api/admin/dashboard", { headers: adminHeaders })).status, 200);
+
+  const update = await api("/api/admin/actions", { method: "POST", headers: adminHeaders, body: JSON.stringify({ action: "settings.update", storeName: "NAROK TEST", announcement: "Integration announcement", shippingThresholdEtb: "45000", currency: "USD" }) });
+  assert.equal(update.status, 200);
+  const catalog = await api("/api/catalog");
+  assert.equal(catalog.status, 200);
+  assert.deepEqual((await catalog.json()).settings, { storeName: "NAROK TEST", announcement: "Integration announcement", shippingThresholdEtb: 45000, currency: "USD" });
+});
+
+test("converts an owned bespoke enquiry into a client order with product snapshots", async () => {
+  const runtime = await getMiniflare();
+  const db = await runtime.getD1Database("DB");
+  await db.prepare("DELETE FROM submission_rate_limits").run();
+  const enquiryResponse = await api("/api/custom-orders", { method: "POST", headers: customerHeaders, body: JSON.stringify({ ...validOrder, name: "Order Conversion" }) });
+  assert.equal(enquiryResponse.status, 201);
+  const enquiry = await db.prepare("SELECT id FROM custom_orders WHERE user_id = ? ORDER BY created_at DESC LIMIT 1").bind("integration-customer").first();
+  const conversion = await api("/api/admin/actions", { method: "POST", headers: adminHeaders, body: JSON.stringify({ action: "bespoke.convert", id: enquiry.id, totalEtb: 55555 }) });
+  assert.equal(conversion.status, 201);
+  const order = await db.prepare("SELECT source_enquiry_id AS sourceEnquiryId, total_etb AS totalEtb, items_json AS itemsJson FROM client_orders WHERE source_enquiry_id = ?").bind(enquiry.id).first();
+  assert.equal(order.sourceEnquiryId, enquiry.id);
+  assert.equal(order.totalEtb, 55555);
+  assert.deepEqual(JSON.parse(order.itemsJson).map((item) => item.sku), ["ND-W-001", "ND-W-002"]);
 });

@@ -57,7 +57,7 @@ const copy = {
 };
 
 export default function Home() {
-  const { language, setLanguage, selection, removeFromSelection, wishlist, catalog } = useSiteState();
+  const { language, setLanguage, selection, removeFromSelection, wishlist, catalog, catalogLoading, settings } = useSiteState();
   const [category, setCategory] = useState<Category>("all");
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -97,10 +97,10 @@ export default function Home() {
 
   return (
     <main>
-      <div className="announcement"><span>{t.announcement}</span><span aria-hidden="true">✦</span><button onClick={() => setLanguage(language === "en" ? "am" : "en")}>{language === "en" ? "አማርኛ" : "English"}</button><span>USD · ETB</span></div>
+      <div className="announcement"><span>{settings.announcement}</span><span aria-hidden="true">✦</span><button onClick={() => setLanguage(language === "en" ? "am" : "en")}>{language === "en" ? "አማርኛ" : "English"}</button><span>{settings.currency} · {settings.shippingThresholdEtb.toLocaleString()} ETB+</span></div>
       <header className={`site-header ${headerScrolled ? "scrolled" : ""}`}>
         <button className="header-action menu-trigger" onClick={() => setMenuOpen(true)} aria-label={t.menu}><span className="menu-lines"><i /><i /></span>{t.menu}</button>
-        <a className="wordmark" href="#home">NAROK DESIGN</a>
+        <a className="wordmark" href="#home">{settings.storeName}</a>
         <div className="header-actions"><button className="header-action search-action" onClick={() => setSearchOpen(true)}>{t.search}</button><button className="header-action wishlist-header" onClick={() => document.getElementById("shop")?.scrollIntoView({ behavior: "smooth" })} aria-label={language === "en" ? `${wishlist.length} saved pieces` : `${wishlist.length} የተቀመጡ ልብሶች`}>♡ <span>{wishlist.length}</span></button><button className="header-action selection-action" data-mobile-label={t.bag} onClick={() => setCartOpen(true)}>{t.bag} <span>{selection.length}</span></button><ProfileControl language={language} /></div>
       </header>
 
@@ -112,7 +112,7 @@ export default function Home() {
         <div className="section-heading"><p className="eyebrow dark">{t.collectionEyebrow}</p><h2>{t.collectionTitle}</h2><p>{t.collectionBody}</p></div>
         <div className="filter-row" id="shop">{(Object.keys(t.filters) as Category[]).map((filter) => <button className={category === filter ? "active" : ""} onClick={() => setCategory(filter)} key={filter}>{t.filters[filter]}</button>)}</div>
         {query && <div className="search-summary"><span>“{query}”</span><button onClick={() => setQuery("")}>×</button></div>}
-        <ProductGrid products={filteredProducts} language={language} addLabel={t.add} sampleLabel={t.visualSample} madeToOrderLabel={language === "en" ? "Made to order" : "በትዕዛዝ"} noResultsLabel={t.noResults} />
+        <ProductGrid products={filteredProducts} language={language} addLabel={t.add} sampleLabel={t.visualSample} madeToOrderLabel={language === "en" ? "Made to order" : "በትዕዛዝ"} noResultsLabel={t.noResults} loading={catalogLoading} />
       </section>
 
       <section className="story" id="about"><div className="story-image"><Image src="/narok-women.png" alt="NAROK DESIGN Ethiopian fashion portrait" fill sizes="(max-width: 980px) 100vw, 54vw" style={{ objectFit: "cover", objectPosition: "25% center" }} /></div><div className="story-copy"><p className="eyebrow">{t.storyEyebrow}</p><h2>{t.storyTitle}</h2><p className="lead">{t.storyBody}</p><p>{t.storyBody2}</p><a href="#custom">{t.storyLink} <span>→</span></a></div></section>
@@ -123,7 +123,7 @@ export default function Home() {
 
       <section className="policies" id="services"><div className="section-heading"><p className="eyebrow dark">{t.policiesEyebrow}</p><h2>{t.policiesTitle}</h2></div><div className="policy-grid">{t.policies.map(([title, body], index) => <article key={title}><span>0{index + 1}</span><h3>{title}</h3><p>{body}</p></article>)}</div></section>
 
-      <footer><div className="footer-top"><h2>{t.newsletterTitle}</h2><NewsletterForm language={language} /></div><div className="footer-links">{t.footerGroups.map(([heading, ...links], groupIndex) => <div key={heading}><h3>{heading}</h3>{links.map((link) => <a href={groupIndex === 0 ? "#shop" : groupIndex === 1 ? "#about" : "#custom"} key={link}>{link}</a>)}</div>)}<div className="locale"><h3>Language / ቋንቋ</h3><button onClick={() => setLanguage("en")}><span>English</span><span>{language === "en" ? "●" : "○"}</span></button><button onClick={() => setLanguage("am")}><span>አማርኛ</span><span>{language === "am" ? "●" : "○"}</span></button><p className="price-note"><span>Prices</span><span>USD · ETB</span></p></div></div><div className="footer-bottom"><p>© 2026 NAROK DESIGN · ADDIS ABABA</p><a className="wordmark" href="#home">NAROK DESIGN</a><div><a href="#services">Delivery & Returns</a><a href="#custom">Custom Orders</a></div></div></footer>
+      <footer><div className="footer-top"><h2>{t.newsletterTitle}</h2><NewsletterForm language={language} /></div><div className="footer-links">{t.footerGroups.map(([heading, ...links], groupIndex) => <div key={heading}><h3>{heading}</h3>{links.map((link) => <a href={groupIndex === 0 ? "#shop" : groupIndex === 1 ? "#about" : "#custom"} key={link}>{link}</a>)}</div>)}<div className="locale"><h3>Language / ቋንቋ</h3><button onClick={() => setLanguage("en")}><span>English</span><span>{language === "en" ? "●" : "○"}</span></button><button onClick={() => setLanguage("am")}><span>አማርኛ</span><span>{language === "am" ? "●" : "○"}</span></button><p className="price-note"><span>Prices</span><span>{settings.currency} · USD · ETB</span></p></div></div><div className="footer-bottom"><p>© 2026 {settings.storeName} · ADDIS ABABA</p><a className="wordmark" href="#home">{settings.storeName}</a><div><a href="#services">Delivery & Returns</a><a href="#custom">Custom Orders</a></div></div></footer>
 
       <button className={`panel-backdrop ${menuOpen || searchOpen || cartOpen ? "visible" : ""}`} onClick={closePanels} aria-label="Close open panel" />
       <aside ref={menuRef} className={`side-panel menu-panel ${menuOpen ? "open" : ""}`} aria-hidden={!menuOpen} role="dialog" aria-modal="true" aria-labelledby="menu-panel-title"><button className="panel-close" onClick={closeMenu} aria-label="Close menu">×</button><p className="panel-label" id="menu-panel-title">{t.panelMenu}</p><nav>{t.nav.map((item, index) => <a href={t.navHrefs[index]} onClick={closeMenu} key={item}>{item}<span>0{index + 1}</span></a>)}</nav><div className="panel-meta"><button onClick={() => setLanguage(language === "en" ? "am" : "en")}>{language === "en" ? "አማርኛ" : "English"}</button><a href="#custom" onClick={closeMenu}>Addis Ababa</a></div></aside>

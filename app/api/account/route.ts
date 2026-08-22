@@ -15,7 +15,8 @@ export async function GET() {
       last_signed_in_at = excluded.last_signed_in_at`).bind(user.userId, user.email.toLowerCase(), user.displayName, now, now).run();
   const [enquiries, newsletter] = await Promise.all([
     db.prepare(`SELECT id, garment, status, created_at AS createdAt, needed_by AS neededBy
-      FROM custom_orders WHERE lower(contact) = lower(?) ORDER BY created_at DESC LIMIT 20`).bind(user.email).all<EnquiryRow>(),
+      FROM custom_orders WHERE user_id = ? OR (user_id IS NULL AND lower(contact) = lower(?))
+      ORDER BY created_at DESC LIMIT 20`).bind(user.userId, user.email).all<EnquiryRow>(),
     db.prepare("SELECT 1 AS subscribed FROM newsletter_subscribers WHERE lower(email) = lower(?) LIMIT 1").bind(user.email).first<{ subscribed: number }>(),
   ]);
   return Response.json({

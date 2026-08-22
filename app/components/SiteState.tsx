@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from "react";
-import { products as fallbackProducts, type Language, type Product } from "../data/catalog";
+import type { Language, Product, StorefrontSettings } from "../data/catalog";
 
 type SiteStateValue = {
   language: Language;
@@ -13,16 +13,26 @@ type SiteStateValue = {
   wishlist: number[];
   toggleWishlist: (productId: number) => void;
   catalog: Product[];
+  catalogLoading: boolean;
+  settings: StorefrontSettings;
 };
 
 const STORAGE_KEY = "narok-design-preferences-v1";
+const defaultSettings: StorefrontSettings = {
+  storeName: "NAROK DESIGN",
+  announcement: "Designed in Addis Ababa · Worldwide delivery",
+  shippingThresholdEtb: 30000,
+  currency: "ETB",
+};
 const SiteStateContext = createContext<SiteStateValue | null>(null);
 
 export function SiteStateProvider({ children }: { children: ReactNode }) {
   const [language, setLanguage] = useState<Language>("en");
   const [selection, setSelection] = useState<number[]>([]);
   const [wishlist, setWishlist] = useState<number[]>([]);
-  const [catalog, setCatalog] = useState<Product[]>(fallbackProducts);
+  const [catalog, setCatalog] = useState<Product[]>([]);
+  const [catalogLoading, setCatalogLoading] = useState(true);
+  const [settings, setSettings] = useState<StorefrontSettings>(defaultSettings);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
@@ -49,10 +59,13 @@ export function SiteStateProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
     fetch("/api/catalog", { cache: "no-store" })
       .then((response) => response.ok ? response.json() : Promise.reject(new Error("Catalogue unavailable")))
-      .then((payload: { products?: Product[] }) => {
-        if (!cancelled && Array.isArray(payload.products) && payload.products.length) setCatalog(payload.products);
+      .then((payload: { products?: Product[]; settings?: Partial<StorefrontSettings> }) => {
+        if (cancelled) return;
+        if (Array.isArray(payload.products)) setCatalog(payload.products);
+        if (payload.settings) setSettings({ ...defaultSettings, ...payload.settings });
       })
-      .catch(() => undefined);
+      .catch(() => undefined)
+      .finally(() => { if (!cancelled) setCatalogLoading(false); });
     return () => { cancelled = true; };
   }, []);
 
@@ -74,7 +87,9 @@ export function SiteStateProvider({ children }: { children: ReactNode }) {
       items.includes(productId) ? items.filter((id) => id !== productId) : [...items, productId],
     ),
     catalog,
-  }), [catalog, language, selection, wishlist]);
+    catalogLoading,
+    settings,
+  }), [catalog, catalogLoading, language, selection, settings, wishlist]);
 
   return <SiteStateContext.Provider value={value}>{children}</SiteStateContext.Provider>;
 }

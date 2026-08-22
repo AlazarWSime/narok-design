@@ -7,7 +7,7 @@ import { FormEvent, useCallback, useEffect, useState } from "react";
 type Section = "overview" | "products" | "orders" | "bespoke" | "analytics" | "ai" | "settings";
 type ProductRow = { id: number; sku: string; nameEn: string; nameAm: string; typeEn: string; typeAm: string; category: string; usd: number; etb: number; stock: number; image: string; imagePosition: string; madeToOrder: number; status: string; updatedAt: string };
 type BespokeRow = { id: string; fullName: string; contact: string; garment: string; measurements: string; color: string; fabric: string; occasion: string; neededBy: string; notes: string; selectedProductIds: string; status: string; createdAt: string };
-type OrderRow = { id: string; orderNumber: string; clientName: string; clientContact: string; itemsJson: string; totalEtb: number; status: string; createdAt: string };
+type OrderRow = { id: string; sourceEnquiryId: string | null; orderNumber: string; clientName: string; clientContact: string; itemsJson: string; totalEtb: number; status: string; createdAt: string };
 type DashboardData = { products: ProductRow[]; bespoke: BespokeRow[]; orders: OrderRow[]; subscriberCount: number; settings: Record<string, string> };
 
 const nav: { id: Section; label: string; icon: string }[] = [
@@ -92,7 +92,7 @@ function SectionContent({ section, data, setSection, act, openProduct }: { secti
   if (section === "overview") return <Overview data={data} setSection={setSection} openProduct={openProduct} />;
   if (section === "products") return <Products data={data} act={act} openProduct={openProduct} />;
   if (section === "orders") return <Orders rows={data.orders} act={act} />;
-  if (section === "bespoke") return <Bespoke rows={data.bespoke} act={act} />;
+  if (section === "bespoke") return <Bespoke rows={data.bespoke} products={data.products} orders={data.orders} act={act} />;
   if (section === "analytics") return <Analytics data={data} />;
   if (section === "ai") return <AIStudio products={data.products} />;
   return <Settings settings={data.settings} act={act} />;
@@ -138,9 +138,17 @@ function Orders({ rows, act }: { rows: OrderRow[]; act: (payload: Record<string,
 
 function readItemCount(value: string) { try { const parsed = JSON.parse(value); return Array.isArray(parsed) ? `${parsed.length} item${parsed.length === 1 ? "" : "s"}` : "—"; } catch { return "—"; } }
 
-function Bespoke({ rows, act }: { rows: BespokeRow[]; act: (payload: Record<string, unknown>, success: string) => Promise<boolean> }) {
+function Bespoke({ rows, products, orders, act }: { rows: BespokeRow[]; products: ProductRow[]; orders: OrderRow[]; act: (payload: Record<string, unknown>, success: string) => Promise<boolean> }) {
   if (!rows.length) return <div className="admin-card"><Empty icon="✂" title="No bespoke requests yet" body="Custom tailoring enquiries will appear here as soon as a client submits one." /></div>;
-  return <div className="bespoke-grid">{rows.map((item) => <article className="bespoke-card" key={item.id}><div className="bespoke-top"><span>{item.fullName.slice(0, 1).toUpperCase()}</span><div><p>REQUEST · {item.id.slice(0, 8).toUpperCase()}</p><h2>{item.fullName}</h2><small>{date(item.createdAt)} · {item.contact}</small></div><select value={item.status} aria-label={`Status for ${item.fullName}`} onChange={(event) => void act({ action: "bespoke.update", id: item.id, status: event.target.value }, `${item.fullName}'s request updated.`)}><option value="new">New</option><option value="contacted">Contacted</option><option value="in_progress">In progress</option><option value="complete">Complete</option><option value="declined">Declined</option></select></div><dl><div><dt>Garment</dt><dd>{item.garment}</dd></div><div><dt>Needed by</dt><dd>{item.neededBy || "Flexible"}</dd></div><div><dt>Colour & fabric</dt><dd>{item.color} · {item.fabric}</dd></div><div><dt>Occasion</dt><dd>{item.occasion || "Not specified"}</dd></div><div className="wide"><dt>Measurements</dt><dd>{item.measurements}</dd></div>{item.notes && <div className="wide"><dt>Atelier notes from client</dt><dd>{item.notes}</dd></div>}</dl></article>)}</div>;
+  return <div className="bespoke-grid">{rows.map((item) => <BespokeCard item={item} products={products} order={orders.find((order) => order.sourceEnquiryId === item.id)} act={act} key={item.id} />)}</div>;
+}
+
+function BespokeCard({ item, products, order, act }: { item: BespokeRow; products: ProductRow[]; order?: OrderRow; act: (payload: Record<string, unknown>, success: string) => Promise<boolean> }) {
+  const [quote, setQuote] = useState("");
+  let selectedIds: number[] = [];
+  try { const parsed = JSON.parse(item.selectedProductIds); if (Array.isArray(parsed)) selectedIds = parsed.filter((value): value is number => Number.isInteger(value)); } catch { selectedIds = []; }
+  const selected = selectedIds.map((id) => products.find((product) => product.id === id)).filter((product): product is ProductRow => Boolean(product));
+  return <article className="bespoke-card"><div className="bespoke-top"><span>{item.fullName.slice(0, 1).toUpperCase()}</span><div><p>REQUEST · {item.id.slice(0, 8).toUpperCase()}</p><h2>{item.fullName}</h2><small>{date(item.createdAt)} · {item.contact}</small></div><select value={item.status} aria-label={`Status for ${item.fullName}`} onChange={(event) => void act({ action: "bespoke.update", id: item.id, status: event.target.value }, `${item.fullName}'s request updated.`)}><option value="new">New</option><option value="contacted">Contacted</option><option value="in_progress">In progress</option><option value="complete">Complete</option><option value="declined">Declined</option></select></div><dl><div><dt>Garment</dt><dd>{item.garment}</dd></div><div><dt>Needed by</dt><dd>{item.neededBy || "Flexible"}</dd></div><div><dt>Colour & fabric</dt><dd>{item.color} · {item.fabric}</dd></div><div><dt>Occasion</dt><dd>{item.occasion || "Not specified"}</dd></div>{selected.length > 0 && <div className="wide"><dt>Selected catalogue pieces</dt><dd className="bespoke-selected">{selected.map((product) => <span key={product.id}><strong>{product.nameEn}</strong><small>{product.sku} · {money(product.etb)} ETB</small></span>)}</dd></div>}<div className="wide"><dt>Measurements</dt><dd>{item.measurements}</dd></div>{item.notes && <div className="wide"><dt>Atelier notes from client</dt><dd>{item.notes}</dd></div>}</dl>{order ? <div className="bespoke-order"><span>Converted to order</span><strong>{order.orderNumber} · {money(order.totalEtb)} ETB</strong></div> : <form className="bespoke-convert" onSubmit={(event) => { event.preventDefault(); void act({ action: "bespoke.convert", id: item.id, totalEtb: Number(quote) }, `Order created for ${item.fullName}.`); }}><label>Confirmed total (ETB)<input type="number" min="1" required value={quote} onChange={(event) => setQuote(event.target.value)} /></label><button className="primary-button" type="submit">Create client order</button></form>}</article>;
 }
 
 function Analytics({ data }: { data: DashboardData }) {

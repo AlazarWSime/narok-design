@@ -12,6 +12,7 @@ type ProductGridProps = {
   madeToOrderLabel: string;
   noResultsLabel: string;
   showWishlist?: boolean;
+  loading?: boolean;
 };
 
 export default function ProductGrid({
@@ -22,9 +23,11 @@ export default function ProductGrid({
   madeToOrderLabel,
   noResultsLabel,
   showWishlist = true,
+  loading = false,
 }: ProductGridProps) {
-  const { addToSelection, wishlist, toggleWishlist } = useSiteState();
+  const { addToSelection, wishlist, toggleWishlist, settings } = useSiteState();
 
+  if (loading) return <p className="no-results" role="status">Loading catalogue…</p>;
   if (!products.length) return <p className="no-results" role="status">{noResultsLabel}</p>;
 
   return (
@@ -63,7 +66,7 @@ export default function ProductGrid({
             </div>
             <div className="product-info">
               <div><h3>{product.name[language]}</h3><p>{product.type[language]}</p></div>
-              <p>${product.usd} USD<br />{product.etb.toLocaleString()} ETB</p>
+              <p>{settings.currency === "USD" ? <><strong>${product.usd} USD</strong><br />{product.etb.toLocaleString()} ETB</> : <><strong>{product.etb.toLocaleString()} ETB</strong><br />${product.usd} USD</>}</p>
             </div>
           </article>
         );

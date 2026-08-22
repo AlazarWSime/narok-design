@@ -20,7 +20,7 @@ export async function GET() {
     db.prepare(`SELECT id, full_name AS fullName, contact, garment, measurements, color, fabric, occasion,
       needed_by AS neededBy, notes, selected_product_ids AS selectedProductIds, language, status,
       created_at AS createdAt FROM custom_orders ORDER BY created_at DESC`).all(),
-    db.prepare(`SELECT id, order_number AS orderNumber, client_name AS clientName, client_contact AS clientContact,
+    db.prepare(`SELECT id, source_enquiry_id AS sourceEnquiryId, order_number AS orderNumber, client_name AS clientName, client_contact AS clientContact,
       items_json AS itemsJson, total_etb AS totalEtb, status, created_at AS createdAt,
       updated_at AS updatedAt FROM client_orders ORDER BY created_at DESC`).all(),
     db.prepare("SELECT COUNT(*) AS count FROM newsletter_subscribers").first<{ count: number }>(),
@@ -32,7 +32,7 @@ export async function GET() {
     bespoke: bespoke.results,
     orders: orders.results,
     subscriberCount: subscribers?.count ?? 0,
-    settings: Object.fromEntries(settings.results.map((row) => [row.key, row.value])),
+    settings: Object.fromEntries(settings.results.map((row: { key: string; value: string }) => [row.key, row.value])),
   }, { headers: { "cache-control": "no-store" } });
 }
 

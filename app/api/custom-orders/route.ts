@@ -1,4 +1,5 @@
 import { checkRateLimit, ensureSchema, getD1 } from "../../../db/runtime";
+import { getChatGPTUser } from "../../chatgpt-auth";
 import { CustomOrderInput, validateCustomOrder } from "../../lib/submissionValidation";
 
 export async function POST(request: Request) {
@@ -18,12 +19,13 @@ export async function POST(request: Request) {
   }
 
   await ensureSchema();
+  const user = await getChatGPTUser();
   const id = crypto.randomUUID();
   await getD1().prepare(`INSERT INTO custom_orders
-    (id, full_name, contact, garment, measurements, color, fabric, occasion, needed_by, notes, selected_product_ids, language, status, created_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'new', ?)`)
-    .bind(id, order.name, order.contact, order.garment, order.measurements, order.color, order.fabric, order.occasion, order.deadline, order.notes, JSON.stringify(order.selectedProductIds), order.language, new Date().toISOString())
+    (id, user_id, full_name, contact, garment, measurements, color, fabric, occasion, needed_by, notes, selected_product_ids, language, status, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'new', ?)`)
+    .bind(id, user?.userId ?? null, order.name, order.contact, order.garment, order.measurements, order.color, order.fabric, order.occasion, order.deadline, order.notes, JSON.stringify(order.selectedProductIds), order.language, new Date().toISOString())
     .run();
 
-  return Response.json({ ok: true, reference: id.slice(0, 8).toUpperCase() }, { status: 201 });
+  return Response.json({ ok: true, reference: id.slice(0, 8).toUpperCase(), ownership: user ? "account" : "public" }, { status: 201 });
 }

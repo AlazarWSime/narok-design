@@ -19,9 +19,18 @@ export function getD1(): D1Database {
 export function ensureSchema() {
   if (schemaReady) return schemaReady;
   const db = getD1();
-  schemaReady = db.batch([
+  schemaReady = initializeSchema(db).catch((error: unknown) => {
+    schemaReady = null;
+    throw error;
+  });
+  return schemaReady;
+}
+
+async function initializeSchema(db: D1Database) {
+  await db.batch([
     db.prepare(`CREATE TABLE IF NOT EXISTS custom_orders (
       id TEXT PRIMARY KEY NOT NULL,
+      user_id TEXT,
       full_name TEXT NOT NULL,
       contact TEXT NOT NULL,
       garment TEXT NOT NULL,
@@ -72,6 +81,7 @@ export function ensureSchema() {
     db.prepare("CREATE INDEX IF NOT EXISTS idx_catalog_products_status_category ON catalog_products(status, category)"),
     db.prepare(`CREATE TABLE IF NOT EXISTS client_orders (
       id TEXT PRIMARY KEY NOT NULL,
+      source_enquiry_id TEXT,
       order_number TEXT NOT NULL,
       client_name TEXT NOT NULL,
       client_contact TEXT NOT NULL,
@@ -105,12 +115,29 @@ export function ensureSchema() {
       ('announcement', 'Designed in Addis Ababa · Worldwide delivery', '2026-08-21T00:00:00.000Z'),
       ('shippingThresholdEtb', '30000', '2026-08-21T00:00:00.000Z'),
       ('currency', 'ETB', '2026-08-21T00:00:00.000Z')`),
+  ]);
+
+  const [customOrderColumns, clientOrderColumns] = await Promise.all([
+    db.prepare("PRAGMA table_info(custom_orders)").all<{ name: string }>(),
+    db.prepare("PRAGMA table_info(client_orders)").all<{ name: string }>(),
+  ]);
+  if (!customOrderColumns.results.some((column) => column.name === "user_id")) {
+    await db.prepare("ALTER TABLE custom_orders ADD COLUMN user_id TEXT").run();
+  }
+  if (!clientOrderColumns.results.some((column) => column.name === "source_enquiry_id")) {
+    await db.prepare("ALTER TABLE client_orders ADD COLUMN source_enquiry_id TEXT").run();
+  }
+
+  const retentionDays = Math.min(3650, Math.max(30, Number(process.env.CUSTOM_ORDER_RETENTION_DAYS) || 730));
+  const retentionCutoff = new Date(Date.now() - retentionDays * 86_400_000).toISOString();
+  const now = Math.floor(Date.now() / 1000);
+  await db.batch([
+    db.prepare("CREATE INDEX IF NOT EXISTS idx_custom_orders_user_id_created_at ON custom_orders(user_id, created_at)"),
+    db.prepare("CREATE UNIQUE INDEX IF NOT EXISTS idx_client_orders_source_enquiry_id ON client_orders(source_enquiry_id)"),
+    db.prepare("DELETE FROM submission_rate_limits WHERE reset_at <= ?").bind(now),
+    db.prepare("DELETE FROM custom_orders WHERE status IN ('complete', 'declined') AND created_at < ?").bind(retentionCutoff),
     db.prepare("PRAGMA optimize"),
-  ]).then(() => undefined).catch((error) => {
-    schemaReady = null;
-    throw error;
-  });
-  return schemaReady;
+  ]);
 }
 
 export async function checkRateLimit(request: Request, scope: string, maximum: number, windowSeconds = 3600) {
@@ -123,6 +150,7 @@ export async function checkRateLimit(request: Request, scope: string, maximum: n
   const resetAt = now + windowSeconds;
   const key = `${scope}:${visitorHash}`;
 
+  await db.prepare("DELETE FROM submission_rate_limits WHERE reset_at <= ?").bind(now).run();
   await db.prepare(`INSERT INTO submission_rate_limits (key, attempts, reset_at)
     VALUES (?, 1, ?)
     ON CONFLICT(key) DO UPDATE SET

@@ -2,7 +2,6 @@
 
 import { FormEvent, useState } from "react";
 import type { Language } from "../data/catalog";
-import { products } from "../data/catalog";
 import { useSiteState } from "./SiteState";
 
 const text = {
@@ -27,11 +26,11 @@ const text = {
 };
 
 export default function CustomOrderForm({ language, className = "custom-form" }: { language: Language; className?: string }) {
-  const { selection, clearSelection } = useSiteState();
+  const { selection, clearSelection, catalog } = useSiteState();
   const [state, setState] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [reference, setReference] = useState("");
   const t = text[language];
-  const selectedProducts = selection.map((id) => products.find((product) => product.id === id)).filter(Boolean);
+  const selectedProducts = selection.map((id) => catalog.find((product) => product.id === id)).filter(Boolean);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
