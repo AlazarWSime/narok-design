@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import type { Language, Product } from "../data/catalog";
 import { useSiteState } from "./SiteState";
 
@@ -38,6 +39,7 @@ export default function ProductGrid({
         return (
           <article className="product-card" key={product.id}>
             <div className="product-image">
+              <Link className="product-image-link" href={`/products/${product.id}`} aria-label={`View ${product.name[language]} details`} />
               <Image
                 src={product.image}
                 alt={`${product.name[language]} — ${sampleLabel}`}
@@ -67,7 +69,7 @@ export default function ProductGrid({
               </button>
             </div>
             <div className="product-info">
-              <div><h3>{product.name[language]}</h3><p>{product.type[language]}</p></div>
+              <div><h3><Link href={`/products/${product.id}`}>{product.name[language]}</Link></h3><p>{product.type[language]}</p></div>
               <p>{settings.currency === "USD" ? <><strong>${product.usd} USD</strong><br />{product.etb.toLocaleString()} ETB</> : <><strong>{product.etb.toLocaleString()} ETB</strong><br />${product.usd} USD</>}</p>
             </div>
             <button className="product-buy" disabled={!available} onClick={() => addToSelection(product.id)}>{available ? addLabel : language === "en" ? "Out of stock" : "አልቋል"}</button>

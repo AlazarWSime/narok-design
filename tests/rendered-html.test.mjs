@@ -231,6 +231,28 @@ test("renders a buyable catalogue and safe payment choices", async () => {
   assert.match(orders, /SELECT id, sku, name_en AS name, etb, stock/);
 });
 
+test("opens a D1-backed product detail page from every catalogue card", async () => {
+  const [grid, detail, page, styles] = await Promise.all([
+    readFile(new URL("app/components/ProductGrid.tsx", root), "utf8"),
+    readFile(new URL("app/products/[id]/ProductDetail.tsx", root), "utf8"),
+    readFile(new URL("app/products/[id]/page.tsx", root), "utf8"),
+    readFile(new URL("app/products/[id]/product.css", root), "utf8"),
+  ]);
+  assert.match(grid, /href={`\/products\/\$\{product\.id\}`}/);
+  assert.match(grid, /product-image-link/);
+  assert.match(detail, /product-detail-layout/);
+  assert.match(detail, /Select your size/);
+  assert.match(detail, /Add to cart/);
+  assert.match(page, /generateMetadata/);
+  assert.match(page, /catalog_products WHERE id = \? AND status = 'active'/);
+  assert.match(styles, /grid-template-columns: 58% 42%/);
+  const response = await api("/products/1", { headers: { accept: "text/html" } });
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /Addis Tibeb Kemis/);
+  assert.match(html, /Addis Tibeb Kemis \| NAROK DESIGN/);
+});
+
 const customerHeaders = {
   "content-type": "application/json",
   "oai-authenticated-user-id": "integration-customer",
