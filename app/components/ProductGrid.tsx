@@ -9,7 +9,6 @@ type ProductGridProps = {
   products: Product[];
   language: Language;
   addLabel: string;
-  sampleLabel: string;
   madeToOrderLabel: string;
   noResultsLabel: string;
   showWishlist?: boolean;
@@ -20,7 +19,6 @@ export default function ProductGrid({
   products,
   language,
   addLabel,
-  sampleLabel,
   madeToOrderLabel,
   noResultsLabel,
   showWishlist = true,
@@ -42,12 +40,11 @@ export default function ProductGrid({
               <Link className="product-image-link" href={`/products/${product.id}`} aria-label={`View ${product.name[language]} details`} />
               <Image
                 src={product.image}
-                alt={`${product.name[language]} — ${sampleLabel}`}
+                alt={product.name[language]}
                 fill
                 sizes="(max-width: 720px) 84vw, (max-width: 980px) 50vw, 33vw"
                 style={{ objectFit: "cover", objectPosition: product.imagePosition === "left" ? "25% center" : "75% center" }}
               />
-              <span className="sample-badge">{sampleLabel}</span>
               {product.madeToOrder && <span className="order-badge">{madeToOrderLabel}</span>}
               {showWishlist && (
                 <button

@@ -269,15 +269,19 @@ test("uses the admin dashboard visual system for the customer profile", async ()
 });
 
 test("renders a buyable catalogue and safe payment choices", async () => {
-  const [home, inner, checkout, orders] = await Promise.all([
+  const [home, inner, checkout, orders, grid, styles] = await Promise.all([
     readFile(new URL("app/page.tsx", root), "utf8"),
     readFile(new URL("app/components/InnerPage.tsx", root), "utf8"),
     readFile(new URL("app/checkout/Checkout.tsx", root), "utf8"),
     readFile(new URL("app/api/orders/route.ts", root), "utf8"),
+    readFile(new URL("app/components/ProductGrid.tsx", root), "utf8"),
+    readFile(new URL("app/globals.css", root), "utf8"),
   ]);
   for (const storefront of [home, inner]) assert.match(storefront, /\/checkout/);
   for (const storefront of [home, inner]) assert.match(storefront, /Cart|Add to cart/);
-  assert.match(await readFile(new URL("app/components/ProductGrid.tsx", root), "utf8"), /🛒/);
+  assert.match(grid, /🛒/);
+  assert.doesNotMatch(`${home}\n${inner}\n${grid}`, /Original catalogue image|sampleLabel|sample-badge/);
+  assert.doesNotMatch(styles, /\.sample-badge/);
   for (const method of ["telebirr", "bank_transfer", "cash_on_delivery"]) {
     assert.match(checkout, new RegExp(method));
     assert.match(orders, new RegExp(method));

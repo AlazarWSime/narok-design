@@ -57,7 +57,7 @@ export default function SearchOverlay({ open, onClose, language, catalog, loadin
       </div>
       <div className="catalogue-search-results">
         <div className="catalogue-search-results-heading"><h2 id="catalogue-search-title">{resultLabel}</h2><span>{filteredProducts.length} {language === "en" ? filteredProducts.length === 1 ? "product" : "products" : "ምርቶች"}</span></div>
-        <ProductGrid products={filteredProducts} language={language} addLabel={language === "en" ? "Add to cart" : "ወደ ጋሪ ያክሉ"} sampleLabel={language === "en" ? "Original catalogue image" : "የካታሎግ ምስል"} madeToOrderLabel={language === "en" ? "Made to order" : "በትዕዛዝ"} noResultsLabel={language === "en" ? "No products match your search." : "ከፍለጋዎ ጋር የሚዛመድ ልብስ የለም።"} loading={loading} />
+        <ProductGrid products={filteredProducts} language={language} addLabel={language === "en" ? "Add to cart" : "ወደ ጋሪ ያክሉ"} madeToOrderLabel={language === "en" ? "Made to order" : "በትዕዛዝ"} noResultsLabel={language === "en" ? "No products match your search." : "ከፍለጋዎ ጋር የሚዛመድ ልብስ የለም።"} loading={loading} />
       </div>
     </section>
   );

@@ -21,7 +21,7 @@ const copy = {
     filters: { all: "All pieces", women: "Women", men: "Men", children: "Children" },
     collectionEyebrow: "Collection · 01", collectionTitle: "Tradition, tailored to you",
     collectionBody: "Explore ready-made and made-to-order clothing for women, men and children, with pricing in USD and ETB.",
-    visualSample: "Original catalogue image", add: "Add to cart",
+    add: "Add to cart",
     storyEyebrow: "Our atelier · Addis Ababa", storyTitle: "Designed by an Ethiopian hand, for a global community.",
     storyBody: "NAROK DESIGN brings the language of Ethiopian traditional clothing into a contemporary wardrobe. Each silhouette begins in Addis Ababa and celebrates the skill, color and symbolism carried through generations.",
     storyBody2: "We create for Ethiopians at home, the diaspora, and anyone around the world who wants to wear Ethiopian heritage with respect and joy.", storyLink: "Meet NAROK DESIGN",
@@ -42,7 +42,7 @@ const copy = {
     heroBody: "በኢትዮጵያ ጥበብ የተቀረጹ ባህላዊ ልብሶች፤ ለበዓል፣ ለሥነ ሥርዓት እና ለዕለት ኩራት።",
     shopNow: "ስብስቡን ይመልከቱ", customCta: "ብጁ ትዕዛዝ ይፍጠሩ", categories: ["ሴቶች", "ወንዶች", "ልጆች", "ብጁ", "ታሪካችን"],
     filters: { all: "ሁሉም", women: "ሴቶች", men: "ወንዶች", children: "ልጆች" }, collectionEyebrow: "ስብስብ · 01", collectionTitle: "ባህል፣ ለእርስዎ የተሰፋ",
-    collectionBody: "ለሴቶች፣ ለወንዶች እና ለልጆች የተዘጋጁ እና በትዕዛዝ የሚሰሩ ልብሶችን በUSD እና ETB ዋጋ ይመልከቱ።", visualSample: "የካታሎግ ምስል", add: "ወደ ጋሪ ያክሉ",
+    collectionBody: "ለሴቶች፣ ለወንዶች እና ለልጆች የተዘጋጁ እና በትዕዛዝ የሚሰሩ ልብሶችን በUSD እና ETB ዋጋ ይመልከቱ።", add: "ወደ ጋሪ ያክሉ",
     storyEyebrow: "የልብስ ስፌት ቤታችን · አዲስ አበባ", storyTitle: "በኢትዮጵያዊ ዲዛይነር፣ ለዓለም ማህበረሰብ።",
     storyBody: "NAROK DESIGN የኢትዮጵያን ባህላዊ አልባሳት ቋንቋ ወደ ዘመናዊ ልብስ ያመጣል። እያንዳንዱ ንድፍ በአዲስ አበባ ይጀምራል።",
     storyBody2: "በኢትዮጵያ፣ በውጭ አገር ለሚኖሩ ኢትዮጵያውያን እና ቅርሱን በክብር ለሚለብሱ ሁሉ እንፈጥራለን።", storyLink: "NAROK DESIGNን ይወቁ",
@@ -107,7 +107,7 @@ export default function Home() {
         <div className="section-heading"><p className="eyebrow dark">{t.collectionEyebrow}</p><h2>{t.collectionTitle}</h2><p>{t.collectionBody}</p></div>
         <div className="filter-row" id="shop">{(Object.keys(t.filters) as Category[]).map((filter) => <button className={category === filter ? "active" : ""} onClick={() => setCategory(filter)} key={filter}>{t.filters[filter]}</button>)}</div>
         {query && <div className="search-summary"><span>“{query}”</span><button onClick={() => setQuery("")}>×</button></div>}
-        <ProductGrid products={filteredProducts} language={language} addLabel={t.add} sampleLabel={t.visualSample} madeToOrderLabel={language === "en" ? "Made to order" : "በትዕዛዝ"} noResultsLabel={t.noResults} loading={catalogLoading} />
+        <ProductGrid products={filteredProducts} language={language} addLabel={t.add} madeToOrderLabel={language === "en" ? "Made to order" : "በትዕዛዝ"} noResultsLabel={t.noResults} loading={catalogLoading} />
       </section>
 
       <section className="story" id="about"><div className="story-image"><Image src="/narok-women.png" alt="NAROK DESIGN Ethiopian fashion portrait" fill sizes="(max-width: 980px) 100vw, 54vw" style={{ objectFit: "cover", objectPosition: "25% center" }} /></div><div className="story-copy"><p className="eyebrow">{t.storyEyebrow}</p><h2>{t.storyTitle}</h2><p className="lead">{t.storyBody}</p><p>{t.storyBody2}</p><a href="#custom">{t.storyLink} <span>→</span></a></div></section>
