@@ -185,6 +185,16 @@ test("provides a working catalogue search bar beside every burger menu", async (
   assert.match(styles, /\.search-glyph::after/);
 });
 
+test("removes the announcement strip from every public storefront layout", async () => {
+  const [home, inner, styles] = await Promise.all([
+    readFile(new URL("app/page.tsx", root), "utf8"),
+    readFile(new URL("app/components/InnerPage.tsx", root), "utf8"),
+    readFile(new URL("app/globals.css", root), "utf8"),
+  ]);
+  for (const source of [home, inner]) assert.doesNotMatch(source, /className="announcement"/);
+  assert.doesNotMatch(styles, /\.announcement\s*\{/);
+});
+
 test("keeps the storefront public while protecting customer account pages", async () => {
   const anonymousHome = await request("/");
   assert.equal(anonymousHome.status, 200);

@@ -41,7 +41,6 @@ export default function InnerPage({ kind }: { kind: PageKind }) {
 
   return (
     <main className="inner-page">
-      <div className="announcement"><span>{settings.announcement}</span><span aria-hidden="true">✦</span><button onClick={() => setLanguage(language === "en" ? "am" : "en")}>{language === "en" ? "አማርኛ" : "English"}</button><span>{settings.currency} · {settings.shippingThresholdEtb.toLocaleString()} ETB+</span></div>
       <header className="site-header page-header scrolled">
         <div className="header-left"><button className="header-action menu-trigger" onClick={() => setMenuOpen(true)} aria-label={language === "en" ? "Menu" : "ምናሌ"}><span className="menu-lines"><i /><i /></span>{language === "en" ? "Menu" : "ምናሌ"}</button><form className="header-search-bar" role="search" onSubmit={runSearch}><label className="visually-hidden" htmlFor={`${kind}-catalogue-search`}>{language === "en" ? "Search the catalogue" : "ካታሎጉን ይፈልጉ"}</label><span className="search-glyph" aria-hidden="true" /><input id={`${kind}-catalogue-search`} type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={language === "en" ? "Search products…" : "ልብስ ይፈልጉ…"} autoComplete="off" />{query && <button type="button" onClick={() => setQuery("")} aria-label={language === "en" ? "Clear search" : "ፍለጋውን አጽዳ"}>×</button>}</form></div>
         <a className="wordmark" href="/">{settings.storeName}</a>
