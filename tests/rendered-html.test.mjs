@@ -62,6 +62,7 @@ for (const [pathname, expected] of [
   ["/collection", "A wardrobe shaped by place, memory and celebration"],
   ["/custom-orders", "Made around your measurements, color and occasion"],
   ["/about", "Ethiopian design, created in Addis Ababa for the world"],
+  ["/checkout", "Your bag is empty"],
 ]) {
   test(`server-renders ${pathname}`, async () => {
     const response = await request(pathname);
@@ -212,6 +213,22 @@ test("uses the admin dashboard visual system for the customer profile", async ()
   }
 });
 
+test("renders a buyable catalogue and safe payment choices", async () => {
+  const [home, inner, checkout, orders] = await Promise.all([
+    readFile(new URL("app/page.tsx", root), "utf8"),
+    readFile(new URL("app/components/InnerPage.tsx", root), "utf8"),
+    readFile(new URL("app/checkout/Checkout.tsx", root), "utf8"),
+    readFile(new URL("app/api/orders/route.ts", root), "utf8"),
+  ]);
+  for (const storefront of [home, inner]) assert.match(storefront, /\/checkout/);
+  for (const method of ["telebirr", "bank_transfer", "cash_on_delivery"]) {
+    assert.match(checkout, new RegExp(method));
+    assert.match(orders, new RegExp(method));
+  }
+  assert.match(checkout, /No card or mobile-money credentials are collected/);
+  assert.match(orders, /SELECT id, sku, name_en AS name, etb, stock/);
+});
+
 const customerHeaders = {
   "content-type": "application/json",
   "oai-authenticated-user-id": "integration-customer",
@@ -260,6 +277,36 @@ test("persists newsletter and public/authenticated enquiries in D1", async () =>
   assert.equal(accountData.profile.accountType, "Customer");
   assert.equal(accountData.profile.email, "integration@example.com");
   assert.ok(accountData.profile.memberSince);
+});
+
+test("creates price-verified public and authenticated storefront orders", async () => {
+  const runtime = await getMiniflare();
+  const db = await runtime.getD1Database("DB");
+  assert.equal((await api("/api/orders")).status, 401);
+  const delivery = { fullName: "Storefront Buyer", email: "buyer@example.com", phone: "+251911111111", address: "Bole Road", city: "Addis Ababa" };
+  const publicOrder = await api("/api/orders", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ...delivery, paymentMethod: "cash_on_delivery", items: [{ productId: 1, quantity: 1 }], totalEtb: 1 }) });
+  assert.equal(publicOrder.status, 201);
+  const publicResult = await publicOrder.json();
+  assert.equal(publicResult.ownership, "public");
+  assert.equal(publicResult.totalEtb, 31000);
+  const publicRow = await db.prepare("SELECT user_id AS userId, total_etb AS totalEtb, payment_method AS paymentMethod, payment_status AS paymentStatus FROM client_orders WHERE order_number = ?").bind(publicResult.orderNumber).first();
+  assert.deepEqual(publicRow, { userId: null, totalEtb: 31000, paymentMethod: "cash_on_delivery", paymentStatus: "pending" });
+  assert.equal(await db.prepare("SELECT stock FROM catalog_products WHERE id = 1").first("stock"), 3);
+
+  const authenticatedOrder = await api("/api/orders", { method: "POST", headers: customerHeaders, body: JSON.stringify({ ...delivery, fullName: "Integration Customer", email: "integration@example.com", paymentMethod: "telebirr", items: [{ productId: 5, quantity: 2 }] }) });
+  assert.equal(authenticatedOrder.status, 201);
+  const authenticatedResult = await authenticatedOrder.json();
+  assert.equal(authenticatedResult.ownership, "account");
+  assert.equal(authenticatedResult.totalEtb, 27000);
+  const owned = await db.prepare("SELECT user_id AS userId FROM client_orders WHERE order_number = ?").bind(authenticatedResult.orderNumber).first();
+  assert.deepEqual(owned, { userId: "integration-customer" });
+  const history = await api("/api/orders", { headers: customerHeaders });
+  assert.equal(history.status, 200);
+  assert.ok((await history.json()).orders.some((order) => order.orderNumber === authenticatedResult.orderNumber));
+  const account = await api("/api/account", { headers: customerHeaders });
+  assert.ok((await account.json()).orders.some((order) => order.orderNumber === authenticatedResult.orderNumber));
+  const unavailable = await api("/api/orders", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ...delivery, paymentMethod: "bank_transfer", items: [{ productId: 999, quantity: 1 }] }) });
+  assert.equal(unavailable.status, 409);
 });
 
 test("enforces and cleans D1-backed submission rate limits", async () => {

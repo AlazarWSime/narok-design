@@ -62,11 +62,15 @@ export const catalogProducts = sqliteTable("catalog_products", {
 export const clientOrders = sqliteTable("client_orders", {
   id: text("id").primaryKey(),
   sourceEnquiryId: text("source_enquiry_id"),
+  userId: text("user_id"),
   orderNumber: text("order_number").notNull(),
   clientName: text("client_name").notNull(),
   clientContact: text("client_contact").notNull(),
   itemsJson: text("items_json").notNull().default("[]"),
   totalEtb: integer("total_etb").notNull().default(0),
+  paymentMethod: text("payment_method").notNull().default("bank_transfer"),
+  paymentStatus: text("payment_status").notNull().default("pending"),
+  shippingAddress: text("shipping_address").notNull().default(""),
   status: text("status").notNull().default("new"),
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
@@ -74,6 +78,7 @@ export const clientOrders = sqliteTable("client_orders", {
   uniqueIndex("idx_client_orders_number").on(table.orderNumber),
   uniqueIndex("idx_client_orders_source_enquiry_id").on(table.sourceEnquiryId),
   index("idx_client_orders_status_created_at").on(table.status, table.createdAt),
+  index("idx_client_orders_user_id_created_at").on(table.userId, table.createdAt),
 ]);
 
 export const storeSettings = sqliteTable("store_settings", {

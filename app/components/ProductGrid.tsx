@@ -34,6 +34,7 @@ export default function ProductGrid({
     <div className="product-grid">
       {products.map((product) => {
         const saved = wishlist.includes(product.id);
+        const available = Boolean(product.madeToOrder || (product.stock ?? 0) > 0);
         return (
           <article className="product-card" key={product.id}>
             <div className="product-image">
@@ -60,14 +61,16 @@ export default function ProductGrid({
                 className="quick-add"
                 onClick={() => addToSelection(product.id)}
                 aria-label={`${addLabel}: ${product.name[language]}`}
+                disabled={!available}
               >
-                +
+                {available ? "+" : "×"}
               </button>
             </div>
             <div className="product-info">
               <div><h3>{product.name[language]}</h3><p>{product.type[language]}</p></div>
               <p>{settings.currency === "USD" ? <><strong>${product.usd} USD</strong><br />{product.etb.toLocaleString()} ETB</> : <><strong>{product.etb.toLocaleString()} ETB</strong><br />${product.usd} USD</>}</p>
             </div>
+            <button className="product-buy" disabled={!available} onClick={() => addToSelection(product.id)}>{available ? addLabel : language === "en" ? "Out of stock" : "አልቋል"}</button>
           </article>
         );
       })}

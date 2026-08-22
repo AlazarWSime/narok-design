@@ -3,6 +3,7 @@ import { ensureSchema, getD1 } from "../../../db/runtime";
 
 type EnquiryRow = { id: string; garment: string; status: string; createdAt: string; neededBy: string };
 type ProfileRow = { createdAt: string; lastSignedInAt: string };
+type OrderRow = { id: string; orderNumber: string; itemsJson: string; totalEtb: number; paymentMethod: string; paymentStatus: string; status: string; createdAt: string };
 
 export async function GET() {
   const user = await getChatGPTUser();
@@ -14,12 +15,15 @@ export async function GET() {
     VALUES (?, ?, ?, ?, ?)
     ON CONFLICT(user_id) DO UPDATE SET email = excluded.email, display_name = excluded.display_name,
       last_signed_in_at = excluded.last_signed_in_at`).bind(user.userId, user.email.toLowerCase(), user.displayName, now, now).run();
-  const [enquiries, newsletter, profile] = await Promise.all([
+  const [enquiries, newsletter, profile, orders] = await Promise.all([
     db.prepare(`SELECT id, garment, status, created_at AS createdAt, needed_by AS neededBy
       FROM custom_orders WHERE user_id = ? OR (user_id IS NULL AND lower(contact) = lower(?))
       ORDER BY created_at DESC LIMIT 20`).bind(user.userId, user.email).all<EnquiryRow>(),
     db.prepare("SELECT 1 AS subscribed FROM newsletter_subscribers WHERE lower(email) = lower(?) LIMIT 1").bind(user.email).first<{ subscribed: number }>(),
     db.prepare("SELECT created_at AS createdAt, last_signed_in_at AS lastSignedInAt FROM customer_profiles WHERE user_id = ? LIMIT 1").bind(user.userId).first<ProfileRow>(),
+    db.prepare(`SELECT id, order_number AS orderNumber, items_json AS itemsJson, total_etb AS totalEtb,
+      payment_method AS paymentMethod, payment_status AS paymentStatus, status, created_at AS createdAt
+      FROM client_orders WHERE user_id = ? ORDER BY created_at DESC LIMIT 30`).bind(user.userId).all<OrderRow>(),
   ]);
   return Response.json({
     profile: {
@@ -32,6 +36,7 @@ export async function GET() {
       lastSignedInAt: profile?.lastSignedInAt ?? now,
     },
     enquiries: enquiries.results,
+    orders: orders.results,
     newsletterSubscribed: Boolean(newsletter?.subscribed),
   }, { headers: { "cache-control": "private, no-store" } });
 }

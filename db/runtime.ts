@@ -82,11 +82,15 @@ async function initializeSchema(db: D1Database) {
     db.prepare(`CREATE TABLE IF NOT EXISTS client_orders (
       id TEXT PRIMARY KEY NOT NULL,
       source_enquiry_id TEXT,
+      user_id TEXT,
       order_number TEXT NOT NULL,
       client_name TEXT NOT NULL,
       client_contact TEXT NOT NULL,
       items_json TEXT NOT NULL DEFAULT '[]',
       total_etb INTEGER NOT NULL DEFAULT 0,
+      payment_method TEXT NOT NULL DEFAULT 'bank_transfer',
+      payment_status TEXT NOT NULL DEFAULT 'pending',
+      shipping_address TEXT NOT NULL DEFAULT '',
       status TEXT NOT NULL DEFAULT 'new',
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL
@@ -127,6 +131,15 @@ async function initializeSchema(db: D1Database) {
   if (!clientOrderColumns.results.some((column) => column.name === "source_enquiry_id")) {
     await db.prepare("ALTER TABLE client_orders ADD COLUMN source_enquiry_id TEXT").run();
   }
+  const requiredOrderColumns = [
+    ["user_id", "ALTER TABLE client_orders ADD COLUMN user_id TEXT"],
+    ["payment_method", "ALTER TABLE client_orders ADD COLUMN payment_method TEXT NOT NULL DEFAULT 'bank_transfer'"],
+    ["payment_status", "ALTER TABLE client_orders ADD COLUMN payment_status TEXT NOT NULL DEFAULT 'pending'"],
+    ["shipping_address", "ALTER TABLE client_orders ADD COLUMN shipping_address TEXT NOT NULL DEFAULT ''"],
+  ] as const;
+  for (const [column, statement] of requiredOrderColumns) {
+    if (!clientOrderColumns.results.some((existing) => existing.name === column)) await db.prepare(statement).run();
+  }
 
   const retentionDays = Math.min(3650, Math.max(30, Number(process.env.CUSTOM_ORDER_RETENTION_DAYS) || 730));
   const retentionCutoff = new Date(Date.now() - retentionDays * 86_400_000).toISOString();
@@ -134,6 +147,7 @@ async function initializeSchema(db: D1Database) {
   await db.batch([
     db.prepare("CREATE INDEX IF NOT EXISTS idx_custom_orders_user_id_created_at ON custom_orders(user_id, created_at)"),
     db.prepare("CREATE UNIQUE INDEX IF NOT EXISTS idx_client_orders_source_enquiry_id ON client_orders(source_enquiry_id)"),
+    db.prepare("CREATE INDEX IF NOT EXISTS idx_client_orders_user_id_created_at ON client_orders(user_id, created_at)"),
     db.prepare("DELETE FROM submission_rate_limits WHERE reset_at <= ?").bind(now),
     db.prepare("DELETE FROM custom_orders WHERE status IN ('complete', 'declined') AND created_at < ?").bind(retentionCutoff),
     db.prepare("PRAGMA optimize"),

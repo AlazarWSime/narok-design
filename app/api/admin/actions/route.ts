@@ -6,6 +6,7 @@ const categories = new Set(["women", "men", "children"]);
 const productStatuses = new Set(["active", "draft", "archived"]);
 const requestStatuses = new Set(["new", "contacted", "in_progress", "complete", "declined"]);
 const orderStatuses = new Set(["new", "confirmed", "in_progress", "shipped", "complete", "refunded"]);
+const paymentStatuses = new Set(["pending", "paid", "failed", "refunded"]);
 
 function text(value: unknown, limit = 180) { return typeof value === "string" ? value.trim().slice(0, limit) : ""; }
 function integer(value: unknown, minimum = 0) { const parsed = Number(value); return Number.isInteger(parsed) && parsed >= minimum ? parsed : null; }
@@ -92,9 +93,9 @@ export async function POST(request: Request) {
   }
 
   if (payload.action === "order.update") {
-    const id = text(payload.id, 80), status = text(payload.status);
-    if (!id || !orderStatuses.has(status)) return Response.json({ error: "Invalid order update" }, { status: 400 });
-    await db.prepare("UPDATE client_orders SET status = ?, updated_at = ? WHERE id = ?").bind(status, now, id).run();
+    const id = text(payload.id, 80), status = text(payload.status), paymentStatus = text(payload.paymentStatus);
+    if (!id || !orderStatuses.has(status) || (paymentStatus && !paymentStatuses.has(paymentStatus))) return Response.json({ error: "Invalid order update" }, { status: 400 });
+    await db.prepare("UPDATE client_orders SET status = ?, payment_status = COALESCE(NULLIF(?, ''), payment_status), updated_at = ? WHERE id = ?").bind(status, paymentStatus, now, id).run();
     return Response.json({ ok: true });
   }
 

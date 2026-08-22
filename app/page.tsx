@@ -12,7 +12,7 @@ import { usePanelFocus } from "./hooks/usePanelFocus";
 
 const copy = {
   en: {
-    announcement: "Designed in Addis Ababa · Worldwide delivery", menu: "Menu", search: "Search", bag: "Selection",
+    announcement: "Designed in Addis Ababa · Worldwide delivery", menu: "Menu", search: "Search", bag: "Bag",
     nav: ["Shop", "Collection", "Custom Orders", "About", "Admin"], navHrefs: ["/shop", "/collection", "/custom-orders", "/about", "/admin"],
     heroEyebrow: "Ethiopian design · Made in Addis Ababa", heroTitle: "Ethiopian Heritage, Made for the World.",
     heroBody: "Traditional clothing shaped by Ethiopian artistry, made for celebrations, ceremonies and everyday pride—wherever you call home.",
@@ -20,7 +20,7 @@ const copy = {
     filters: { all: "All pieces", women: "Women", men: "Men", children: "Children" },
     collectionEyebrow: "Collection · 01", collectionTitle: "Tradition, tailored to you",
     collectionBody: "Explore ready-made and made-to-order clothing for women, men and children, with pricing in USD and ETB.",
-    visualSample: "Original catalogue image", add: "Add to selection",
+    visualSample: "Original catalogue image", add: "Add to bag",
     storyEyebrow: "Our atelier · Addis Ababa", storyTitle: "Designed by an Ethiopian hand, for a global community.",
     storyBody: "NAROK DESIGN brings the language of Ethiopian traditional clothing into a contemporary wardrobe. Each silhouette begins in Addis Ababa and celebrates the skill, color and symbolism carried through generations.",
     storyBody2: "We create for Ethiopians at home, the diaspora, and anyone around the world who wants to wear Ethiopian heritage with respect and joy.", storyLink: "Meet NAROK DESIGN",
@@ -32,16 +32,16 @@ const copy = {
     newsletterTitle: "Stories, new pieces and atelier notes from Addis Ababa.",
     footerGroups: [["Shop", "Women", "Men", "Children", "Custom Orders"], ["About", "Our Story", "Craft & Care", "Delivery", "Returns"], ["Visit", "Addis Ababa, Ethiopia", "Worldwide delivery", "Consultations by request"]],
     panelMenu: "Explore NAROK DESIGN", panelSearch: "Search the collection", searchPlaceholder: "Search dresses, men, children…", suggestions: "Try: Habesha kemis, custom, children, men",
-    bagTitle: "Your selection", emptyBag: "Save pieces here before sending an atelier enquiry.", continueShopping: "Continue browsing", checkout: "Enquire about these pieces", checkoutDemo: "No payment is taken online; the atelier confirms details and price with you.", noResults: "No pieces match that search yet.",
+    bagTitle: "Your shopping bag", emptyBag: "Your shopping bag is ready for a piece you love.", continueShopping: "Continue browsing", checkout: "Checkout securely", checkoutDemo: "Choose Telebirr, bank transfer or pay on delivery at checkout.", noResults: "No pieces match that search yet.",
   },
   am: {
-    announcement: "በአዲስ አበባ የተነደፈ · ዓለም አቀፍ መላኪያ", menu: "ምናሌ", search: "ፈልግ", bag: "ምርጫ",
+    announcement: "በአዲስ አበባ የተነደፈ · ዓለም አቀፍ መላኪያ", menu: "ምናሌ", search: "ፈልግ", bag: "ቦርሳ",
     nav: ["ይግዙ", "ስብስብ", "ብጁ ትዕዛዝ", "ስለ እኛ", "አስተዳዳሪ"], navHrefs: ["/shop", "/collection", "/custom-orders", "/about", "/admin"],
     heroEyebrow: "የኢትዮጵያ ዲዛይን · በአዲስ አበባ የተሰራ", heroTitle: "የኢትዮጵያ ቅርስ፣ ለዓለም የተሰራ።",
     heroBody: "በኢትዮጵያ ጥበብ የተቀረጹ ባህላዊ ልብሶች፤ ለበዓል፣ ለሥነ ሥርዓት እና ለዕለት ኩራት።",
     shopNow: "ስብስቡን ይመልከቱ", customCta: "ብጁ ትዕዛዝ ይፍጠሩ", categories: ["ሴቶች", "ወንዶች", "ልጆች", "ብጁ", "ታሪካችን"],
     filters: { all: "ሁሉም", women: "ሴቶች", men: "ወንዶች", children: "ልጆች" }, collectionEyebrow: "ስብስብ · 01", collectionTitle: "ባህል፣ ለእርስዎ የተሰፋ",
-    collectionBody: "ለሴቶች፣ ለወንዶች እና ለልጆች የተዘጋጁ እና በትዕዛዝ የሚሰሩ ልብሶችን በUSD እና ETB ዋጋ ይመልከቱ።", visualSample: "የካታሎግ ምስል", add: "ወደ ምርጫ ያክሉ",
+    collectionBody: "ለሴቶች፣ ለወንዶች እና ለልጆች የተዘጋጁ እና በትዕዛዝ የሚሰሩ ልብሶችን በUSD እና ETB ዋጋ ይመልከቱ።", visualSample: "የካታሎግ ምስል", add: "ወደ ቦርሳ ያክሉ",
     storyEyebrow: "የልብስ ስፌት ቤታችን · አዲስ አበባ", storyTitle: "በኢትዮጵያዊ ዲዛይነር፣ ለዓለም ማህበረሰብ።",
     storyBody: "NAROK DESIGN የኢትዮጵያን ባህላዊ አልባሳት ቋንቋ ወደ ዘመናዊ ልብስ ያመጣል። እያንዳንዱ ንድፍ በአዲስ አበባ ይጀምራል።",
     storyBody2: "በኢትዮጵያ፣ በውጭ አገር ለሚኖሩ ኢትዮጵያውያን እና ቅርሱን በክብር ለሚለብሱ ሁሉ እንፈጥራለን።", storyLink: "NAROK DESIGNን ይወቁ",
@@ -52,7 +52,7 @@ const copy = {
     newsletterTitle: "ከአዲስ አበባ ታሪኮች፣ አዳዲስ ልብሶች እና የስፌት ቤት ዜና።",
     footerGroups: [["ይግዙ", "ሴቶች", "ወንዶች", "ልጆች", "ብጁ ትዕዛዝ"], ["ስለ እኛ", "ታሪካችን", "ጥበብና እንክብካቤ", "መላኪያ", "መመለሻ"], ["አድራሻ", "አዲስ አበባ፣ ኢትዮጵያ", "ዓለም አቀፍ መላኪያ", "ቀጠሮ በጥያቄ"]],
     panelMenu: "NAROK DESIGNን ያስሱ", panelSearch: "ስብስቡን ይፈልጉ", searchPlaceholder: "ቀሚስ፣ ወንዶች፣ ልጆች…", suggestions: "ሐበሻ ቀሚስ፣ ብጁ፣ ልጆች፣ ወንዶች",
-    bagTitle: "ምርጫዎ", emptyBag: "ለስፌት ቤቱ ጥያቄ ከመላክዎ በፊት ልብሶችን እዚህ ይምረጡ።", continueShopping: "መመልከትዎን ይቀጥሉ", checkout: "ስለነዚህ ልብሶች ይጠይቁ", checkoutDemo: "በመስመር ላይ ክፍያ አይደረግም፤ የስፌት ቤቱ ዝርዝሩንና ዋጋውን ያረጋግጣል።", noResults: "ከዚህ ፍለጋ ጋር የሚዛመድ ናሙና የለም።",
+    bagTitle: "የግዢ ቦርሳዎ", emptyBag: "የግዢ ቦርሳዎ ለሚወዱት ልብስ ዝግጁ ነው።", continueShopping: "መመልከትዎን ይቀጥሉ", checkout: "በደህና ይክፈሉ", checkoutDemo: "Telebirr፣ የባንክ ዝውውር ወይም በመላኪያ ጊዜ ክፍያ ይምረጡ።", noResults: "ከዚህ ፍለጋ ጋር የሚዛመድ ናሙና የለም።",
   },
 };
 
@@ -128,7 +128,7 @@ export default function Home() {
       <button className={`panel-backdrop ${menuOpen || searchOpen || cartOpen ? "visible" : ""}`} onClick={closePanels} aria-label="Close open panel" />
       <aside ref={menuRef} className={`side-panel menu-panel ${menuOpen ? "open" : ""}`} aria-hidden={!menuOpen} role="dialog" aria-modal="true" aria-labelledby="menu-panel-title"><button className="panel-close" onClick={closeMenu} aria-label="Close menu">×</button><p className="panel-label" id="menu-panel-title">{t.panelMenu}</p><nav>{t.nav.map((item, index) => <a className={t.navHrefs[index] === "/admin" ? "menu-admin-entry" : undefined} href={t.navHrefs[index]} onClick={closeMenu} key={item}>{item}<span>0{index + 1}</span></a>)}</nav><div className="panel-meta"><button onClick={() => setLanguage(language === "en" ? "am" : "en")}>{language === "en" ? "አማርኛ" : "English"}</button><a href="#custom" onClick={closeMenu}>Addis Ababa</a></div></aside>
       <aside ref={searchRef} className={`side-panel search-panel ${searchOpen ? "open" : ""}`} aria-hidden={!searchOpen} role="dialog" aria-modal="true" aria-labelledby="search-panel-title"><button className="panel-close" onClick={closeSearch} aria-label="Close search">×</button><p className="panel-label" id="search-panel-title">{t.panelSearch}</p><form onSubmit={runSearch}><label className="visually-hidden" htmlFor="catalogue-search">{t.panelSearch}</label><input id="catalogue-search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t.searchPlaceholder} /><button aria-label="Search">→</button></form><p className="suggestions">{t.suggestions}</p></aside>
-      <aside ref={selectionRef} className={`side-panel cart-panel ${cartOpen ? "open" : ""}`} aria-hidden={!cartOpen} role="dialog" aria-modal="true" aria-labelledby="selection-panel-title"><button className="panel-close" onClick={closeSelection} aria-label="Close selection">×</button><p className="panel-label" id="selection-panel-title">{t.bagTitle} · {selection.length}</p>{selection.length === 0 ? <div className="empty-bag"><div><p>{t.emptyBag}</p><button onClick={() => { closeSelection(); document.getElementById("shop")?.scrollIntoView({ behavior: "smooth" }); }}>{t.continueShopping}</button></div></div> : <><div className="bag-items">{selection.map((productId, index) => { const item = catalog.find((product) => product.id === productId); return item ? <div key={`${item.id}-${index}`}><span>{String(index + 1).padStart(2, "0")}</span><p>{item.name[language]}<small>${item.usd} USD · {item.etb.toLocaleString()} ETB</small></p><button onClick={() => removeFromSelection(index)} aria-label={`Remove ${item.name[language]}`}>×</button></div> : null; })}</div><a className="checkout" href="/custom-orders">{t.checkout}</a><p className="checkout-note static-note">{t.checkoutDemo}</p></>}</aside>
+      <aside ref={selectionRef} className={`side-panel cart-panel ${cartOpen ? "open" : ""}`} aria-hidden={!cartOpen} role="dialog" aria-modal="true" aria-labelledby="selection-panel-title"><button className="panel-close" onClick={closeSelection} aria-label="Close bag">×</button><p className="panel-label" id="selection-panel-title">{t.bagTitle} · {selection.length}</p>{selection.length === 0 ? <div className="empty-bag"><div><p>{t.emptyBag}</p><button onClick={() => { closeSelection(); document.getElementById("shop")?.scrollIntoView({ behavior: "smooth" }); }}>{t.continueShopping}</button></div></div> : <><div className="bag-items">{selection.map((productId, index) => { const item = catalog.find((product) => product.id === productId); return item ? <div key={`${item.id}-${index}`}><span>{String(index + 1).padStart(2, "0")}</span><p>{item.name[language]}<small>${item.usd} USD · {item.etb.toLocaleString()} ETB</small></p><button onClick={() => removeFromSelection(index)} aria-label={`Remove ${item.name[language]}`}>×</button></div> : null; })}</div><a className="checkout" href="/checkout">{t.checkout}</a><p className="checkout-note static-note">{t.checkoutDemo}</p></>}</aside>
     </main>
   );
 }

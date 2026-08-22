@@ -29,6 +29,13 @@
       "when": 1787387090671,
       "tag": "0003_lush_blue_blade",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1787405808696,
+      "tag": "0004_cold_miracleman",
+      "breakpoints": true
     }
   ]
 }
