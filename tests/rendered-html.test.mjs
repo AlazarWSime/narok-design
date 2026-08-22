@@ -109,15 +109,22 @@ test("uses owned catalogue assets and enables D1 persistence", async () => {
 });
 
 test("protects the private admin workspace and exposes all requested sections", async () => {
-  const response = await request("/admin");
-  assert.ok([301, 302, 303, 307, 308].includes(response.status));
-  assert.match(response.headers.get("location") ?? "", /signin-with-chatgpt/i);
-  const [page, dashboard, auth] = await Promise.all([
+  for (const pathname of ["/admin", "/admin/products", "/admin/orders", "/admin/bespoke", "/admin/analytics", "/admin/ai-studio", "/admin/settings"]) {
+    const response = await request(pathname);
+    assert.ok([301, 302, 303, 307, 308].includes(response.status), `${pathname} must redirect anonymous visitors`);
+    assert.match(response.headers.get("location") ?? "", /signin-with-chatgpt/i);
+  }
+  const [page, dashboard, sectionPage, auth] = await Promise.all([
     readFile(new URL("app/admin/AdminDashboard.tsx", root), "utf8"),
     readFile(new URL("app/api/admin/dashboard/route.ts", root), "utf8"),
+    readFile(new URL("app/admin/[section]/page.tsx", root), "utf8"),
     readFile(new URL("app/chatgpt-auth.ts", root), "utf8"),
   ]);
   for (const section of ["Overview", "Products", "Orders", "Bespoke", "Analytics", "AI Studio", "Settings"]) assert.match(page, new RegExp(section));
+  for (const pathname of ["/admin/products", "/admin/orders", "/admin/bespoke", "/admin/analytics", "/admin/ai-studio", "/admin/settings"]) assert.match(page, new RegExp(pathname.replaceAll("/", "\\/")));
+  assert.match(sectionPage, /requireChatGPTUser/);
+  assert.match(page, /REVENUE TREND/);
+  assert.match(page, /WEEKLY BRIEF/);
   assert.match(dashboard, /getChatGPTUser/);
   assert.match(auth, /ADMIN_EMAILS/);
 });

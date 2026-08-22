@@ -2,22 +2,23 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FormEvent, useCallback, useEffect, useState } from "react";
 
-type Section = "overview" | "products" | "orders" | "bespoke" | "analytics" | "ai" | "settings";
+export type AdminSection = "overview" | "products" | "orders" | "bespoke" | "analytics" | "ai" | "settings";
 type ProductRow = { id: number; sku: string; nameEn: string; nameAm: string; typeEn: string; typeAm: string; category: string; usd: number; etb: number; stock: number; image: string; imagePosition: string; madeToOrder: number; status: string; updatedAt: string };
 type BespokeRow = { id: string; fullName: string; contact: string; garment: string; measurements: string; color: string; fabric: string; occasion: string; neededBy: string; notes: string; selectedProductIds: string; status: string; createdAt: string };
 type OrderRow = { id: string; sourceEnquiryId: string | null; orderNumber: string; clientName: string; clientContact: string; itemsJson: string; totalEtb: number; status: string; createdAt: string };
 type DashboardData = { products: ProductRow[]; bespoke: BespokeRow[]; orders: OrderRow[]; subscriberCount: number; settings: Record<string, string> };
 
-const nav: { id: Section; label: string; icon: string }[] = [
-  { id: "overview", label: "Overview", icon: "◫" }, { id: "products", label: "Products", icon: "◇" },
-  { id: "orders", label: "Orders", icon: "⌑" }, { id: "bespoke", label: "Bespoke", icon: "✂" },
-  { id: "analytics", label: "Analytics", icon: "⌁" }, { id: "ai", label: "AI Studio", icon: "✦" },
-  { id: "settings", label: "Settings", icon: "⚙" },
+const nav: { id: AdminSection; label: string; icon: string; href: string }[] = [
+  { id: "overview", label: "Overview", icon: "◫", href: "/admin" }, { id: "products", label: "Products", icon: "◇", href: "/admin/products" },
+  { id: "orders", label: "Orders", icon: "⌑", href: "/admin/orders" }, { id: "bespoke", label: "Bespoke", icon: "✂", href: "/admin/bespoke" },
+  { id: "analytics", label: "Analytics", icon: "⌁", href: "/admin/analytics" }, { id: "ai", label: "AI Studio", icon: "✦", href: "/admin/ai-studio" },
+  { id: "settings", label: "Settings", icon: "⚙", href: "/admin/settings" },
 ];
 
-const sectionCopy: Record<Section, [string, string]> = {
+const sectionCopy: Record<AdminSection, [string, string]> = {
   overview: ["Overview", "A clear view of your atelier, catalogue and client requests."],
   products: ["Product Catalogue", "Publish, pause and keep stock accurate across the storefront."],
   orders: ["Client Orders", "Track confirmed purchases and fulfilment in one place."],
@@ -30,8 +31,8 @@ const sectionCopy: Record<Section, [string, string]> = {
 const money = (value: number) => new Intl.NumberFormat("en-US").format(value);
 const date = (value: string) => new Intl.DateTimeFormat("en", { day: "numeric", month: "short", year: "numeric" }).format(new Date(value));
 
-export default function AdminDashboard({ displayName }: { displayName: string }) {
-  const [section, setSection] = useState<Section>("overview");
+export default function AdminDashboard({ displayName, section = "overview" }: { displayName: string; section?: AdminSection }) {
+  const router = useRouter();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -65,7 +66,7 @@ export default function AdminDashboard({ displayName }: { displayName: string })
     <div className="admin-shell">
       <aside className="admin-sidebar">
         <Link className="admin-brand" href="/"><span>NAROK</span><strong>DESIGN</strong><small>ATELIER ADMIN</small></Link>
-        <nav aria-label="Admin sections">{nav.map((item) => <button key={item.id} className={section === item.id ? "active" : ""} onClick={() => setSection(item.id)}><span aria-hidden="true">{item.icon}</span>{item.label}</button>)}</nav>
+        <nav aria-label="Admin sections">{nav.map((item) => <Link key={item.id} className={section === item.id ? "active" : ""} href={item.href} aria-current={section === item.id ? "page" : undefined}><span aria-hidden="true">{item.icon}</span>{item.label}</Link>)}</nav>
         <div className="admin-side-foot"><p>Owner workspace</p><a href="/signout-with-chatgpt?return_to=%2F">Sign out</a></div>
       </aside>
       <main className="admin-main">
@@ -73,12 +74,12 @@ export default function AdminDashboard({ displayName }: { displayName: string })
           <Link href="/">View storefront <span aria-hidden="true">↗</span></Link>
           <div className="admin-profile"><span>{displayName.slice(0, 1).toUpperCase()}</span><div><strong>{displayName}</strong><small>Administrator</small></div></div>
         </header>
-        <div className="admin-mobile-nav"><label htmlFor="admin-section">Workspace</label><select id="admin-section" value={section} onChange={(event) => setSection(event.target.value as Section)}>{nav.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}</select></div>
+        <div className="admin-mobile-nav"><label htmlFor="admin-section">Workspace</label><select id="admin-section" value={section} onChange={(event) => { const destination = nav.find((item) => item.id === event.target.value); if (destination) router.push(destination.href); }}>{nav.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}</select></div>
         <section className="admin-content">
           <div className="admin-heading"><div><p>NAROK DESIGN · ADDIS ABABA</p><h1>{title}</h1><span>{subtitle}</span></div><div className="heading-mark" aria-hidden="true">ND</div></div>
           {error && <p className="admin-alert error" role="alert">{error}</p>}
           {notice && <p className="admin-alert success" role="status">{notice}</p>}
-          {loading ? <Loading /> : data ? <SectionContent section={section} data={data} setSection={setSection} act={act} openProduct={() => setProductOpen(true)} /> : null}
+          {loading ? <Loading /> : data ? <SectionContent section={section} data={data} act={act} openProduct={() => setProductOpen(true)} /> : null}
         </section>
       </main>
       {productOpen && <ProductModal close={() => setProductOpen(false)} act={act} />}
@@ -88,17 +89,17 @@ export default function AdminDashboard({ displayName }: { displayName: string })
 
 function Loading() { return <div className="admin-loading" role="status"><span /><p>Preparing your atelier workspace…</p></div>; }
 
-function SectionContent({ section, data, setSection, act, openProduct }: { section: Section; data: DashboardData; setSection: (section: Section) => void; act: (payload: Record<string, unknown>, success: string) => Promise<boolean>; openProduct: () => void }) {
-  if (section === "overview") return <Overview data={data} setSection={setSection} openProduct={openProduct} />;
+function SectionContent({ section, data, act, openProduct }: { section: AdminSection; data: DashboardData; act: (payload: Record<string, unknown>, success: string) => Promise<boolean>; openProduct: () => void }) {
+  if (section === "overview") return <Overview data={data} openProduct={openProduct} />;
   if (section === "products") return <Products data={data} act={act} openProduct={openProduct} />;
   if (section === "orders") return <Orders rows={data.orders} act={act} />;
   if (section === "bespoke") return <Bespoke rows={data.bespoke} products={data.products} orders={data.orders} act={act} />;
   if (section === "analytics") return <Analytics data={data} />;
-  if (section === "ai") return <AIStudio products={data.products} />;
+  if (section === "ai") return <AIStudio data={data} />;
   return <Settings settings={data.settings} act={act} />;
 }
 
-function Overview({ data, setSection, openProduct }: { data: DashboardData; setSection: (section: Section) => void; openProduct: () => void }) {
+function Overview({ data, openProduct }: { data: DashboardData; openProduct: () => void }) {
   const activeOrders = data.orders.filter((item) => !["complete", "refunded"].includes(item.status)).length;
   const pendingBespoke = data.bespoke.filter((item) => !["complete", "declined"].includes(item.status)).length;
   const lowStock = data.products.filter((item) => item.status === "active" && !item.madeToOrder && item.stock < 3).length;
@@ -112,7 +113,7 @@ function Overview({ data, setSection, openProduct }: { data: DashboardData; setS
     </div>
     <div className="overview-grid">
       <article className="overview-intro"><p className="card-kicker">TODAY AT NAROK</p><h2>Craft has a rhythm.<br />Keep it visible.</h2><p>Your catalogue, requests and audience signals live together here—quietly organised so the atelier can focus on the work.</p><div><span>{data.products.filter((item) => item.status === "active").length}<small>Live pieces</small></span><span>{data.subscriberCount}<small>Subscribers</small></span></div></article>
-      <div className="quick-actions"><button onClick={openProduct}><span>01</span><strong>Add a product</strong><small>Create a catalogue draft and set its stock.</small></button><button onClick={() => setSection("bespoke")}><span>02</span><strong>Review bespoke</strong><small>Open measurements and client deadlines.</small></button><button onClick={() => setSection("ai")}><span>03</span><strong>Draft product copy</strong><small>Shape a refined first draft in AI Studio.</small></button></div>
+      <div className="quick-actions"><button onClick={openProduct}><span>01</span><strong>Add a product</strong><small>Create a catalogue draft and set its stock.</small></button><Link href="/admin/bespoke"><span>02</span><strong>Review bespoke</strong><small>Open measurements and client deadlines.</small></Link><Link href="/admin/ai-studio"><span>03</span><strong>Draft product copy</strong><small>Shape a refined first draft in AI Studio.</small></Link></div>
     </div>
   </>;
 }
@@ -153,21 +154,26 @@ function BespokeCard({ item, products, order, act }: { item: BespokeRow; product
 
 function Analytics({ data }: { data: DashboardData }) {
   const categories = ["women", "men", "children"].map((name) => ({ name, count: data.products.filter((item) => item.category === name && item.status === "active").length }));
-  const max = Math.max(1, ...categories.map((item) => item.count));
-  const statuses = ["new", "contacted", "in_progress", "complete"].map((name) => ({ name, count: data.bespoke.filter((item) => item.status === name).length }));
-  return <div className="analytics-layout"><article className="admin-card analytics-lead"><div><p className="card-kicker">ATELIER PULSE</p><h2>{data.bespoke.length} client conversations</h2><span>All-time bespoke requests received through the storefront.</span></div><div className="analytics-number">{data.subscriberCount}<small>Newsletter audience</small></div></article><article className="admin-card chart-card"><p className="card-kicker">LIVE CATALOGUE BY CATEGORY</p><div className="bar-chart">{categories.map((item) => <div key={item.name}><span style={{ height: `${22 + (item.count / max) * 70}%` }}><b>{item.count}</b></span><small>{item.name}</small></div>)}</div></article><article className="admin-card status-card"><p className="card-kicker">BESPOKE PIPELINE</p>{statuses.map((item) => <div key={item.name}><span className={`status-dot ${item.name}`} /><p>{item.name.replace("_", " ")}</p><strong>{item.count}</strong></div>)}</article><article className="admin-card inventory-card"><p className="card-kicker">INVENTORY SIGNAL</p><strong>{data.products.reduce((sum, item) => sum + item.stock, 0)}</strong><h3>Ready pieces recorded</h3><p>{data.products.filter((item) => item.status === "active" && !item.madeToOrder && item.stock < 3).length} active styles need a stock review.</p></article></div>;
+  const orderStatuses = ["new", "confirmed", "in_progress", "shipped", "complete", "refunded"].map((name) => ({ name, count: data.orders.filter((item) => item.status === name).length }));
+  const months = Array.from({ length: 6 }, (_, index) => { const month = new Date(); month.setDate(1); month.setMonth(month.getMonth() - (5 - index)); return { key: `${month.getFullYear()}-${String(month.getMonth() + 1).padStart(2, "0")}`, label: month.toLocaleDateString("en", { month: "short" }), revenue: 0 }; });
+  for (const order of data.orders) { const bucket = months.find((month) => order.createdAt.startsWith(month.key)); if (bucket && order.status !== "refunded") bucket.revenue += order.totalEtb; }
+  const maxRevenue = Math.max(1, ...months.map((month) => month.revenue));
+  const revenue = data.orders.filter((item) => item.status !== "refunded").reduce((sum, item) => sum + item.totalEtb, 0);
+  return <div className="analytics-layout"><article className="admin-card revenue-card"><div className="analytics-card-heading"><div><p className="card-kicker">REVENUE TREND</p><h2>{money(revenue)} ETB</h2></div><span>Last 6 months</span></div><div className="revenue-chart" aria-label="Revenue by month">{months.map((month) => <div key={month.key}><span style={{ height: `${12 + (month.revenue / maxRevenue) * 88}%` }} title={`${month.label}: ${money(month.revenue)} ETB`}><b>{month.revenue ? money(month.revenue) : "0"}</b></span><small>{month.label}</small></div>)}</div></article><article className="admin-card status-card"><p className="card-kicker">ORDERS BY STATUS</p>{orderStatuses.map((item) => <div key={item.name}><span className={`status-dot ${item.name}`} /><p>{item.name.replace("_", " ")}</p><strong>{item.count}</strong></div>)}</article><article className="admin-card category-card"><p className="card-kicker">PRODUCT CATEGORIES</p>{categories.map((item) => <div key={item.name}><p>{item.name}</p><span><i style={{ width: `${data.products.length ? Math.max(8, item.count / data.products.length * 100) : 8}%` }} /></span><strong>{item.count}</strong></div>)}<footer><span>{data.subscriberCount}<small>Subscribers</small></span><span>{data.bespoke.length}<small>Bespoke enquiries</small></span></footer></article></div>;
 }
 
-function AIStudio({ products }: { products: ProductRow[] }) {
-  const [form, setForm] = useState({ product: products[0]?.nameEn ?? "Handwoven Kemis", tone: "refined, warm and editorial", materials: "hand-spun Ethiopian cotton with artisanal woven detail", audience: "clients seeking meaningful occasion wear", notes: "Keep it concise and faithful to NAROK DESIGN craftsmanship." });
+function AIStudio({ data }: { data: DashboardData }) {
+  const [form, setForm] = useState({ product: data.products[0]?.nameEn ?? "Handwoven Kemis", tone: "refined, warm and editorial", keywords: "hand-loomed, Ethiopian heritage, celebration wear", materials: "hand-spun Ethiopian cotton with artisanal woven detail", audience: "clients seeking meaningful occasion wear", notes: "Keep it concise and faithful to NAROK DESIGN craftsmanship." });
   const [draft, setDraft] = useState("");
-  function generate(event: FormEvent) { event.preventDefault(); setDraft(`${form.product} brings ${form.materials} into a considered contemporary silhouette. Created in Addis Ababa for ${form.audience}, the piece honours Ethiopian making through patient detail and an ease designed for celebration. ${form.notes}\n\nSuggested SEO title: ${form.product} | Ethiopian Occasion Wear by NAROK DESIGN`); }
-  return <><section className="ai-hero"><p>✦ GUIDED DRAFT STUDIO</p><h2>Draft with speed.<br />Publish with judgement.</h2><span>This workspace creates structured first drafts from your inputs. Nothing is published or changed automatically.</span><div><small>MODE<strong>Human approved</strong></small><small>SCOPE<strong>Copy only</strong></small></div></section><div className="ai-grid"><form className="admin-card ai-form" onSubmit={generate}><div className="card-title"><p>PRODUCT COPY</p><span>FIRST DRAFT</span></div><label>Product<input value={form.product} onChange={(e) => setForm({ ...form, product: e.target.value })} /></label><label>Tone<input value={form.tone} onChange={(e) => setForm({ ...form, tone: e.target.value })} /></label><label className="wide">Materials<textarea value={form.materials} onChange={(e) => setForm({ ...form, materials: e.target.value })} /></label><label className="wide">Audience<textarea value={form.audience} onChange={(e) => setForm({ ...form, audience: e.target.value })} /></label><label className="wide">Notes<textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} /></label><button className="primary-button wide" type="submit">✦ Generate draft</button></form><div className="ai-side"><article className="admin-card"><p className="card-kicker">REVIEW GUARDRAILS</p><ul><li>Drafts stay inside this screen until you copy them.</li><li>Prices, stock and client records are never modified.</li><li>Check cultural details and claims before publishing.</li></ul></article><article className="admin-card draft-output" aria-live="polite"><p className="card-kicker">DRAFT OUTPUT</p>{draft ? <><p>{draft}</p><button className="text-button" onClick={() => void navigator.clipboard.writeText(draft)}>Copy draft</button></> : <Empty icon="✦" title="Ready when you are" body="Add your product details and generate a reviewable first draft." />}</article></div></div></>;
+  const [brief, setBrief] = useState("");
+  function generate(event: FormEvent) { event.preventDefault(); setDraft(`${form.product} brings ${form.materials} into a considered contemporary silhouette. Created in Addis Ababa for ${form.audience}, the piece honours Ethiopian making through patient detail and an ease designed for celebration. ${form.notes}\n\nSuggested SEO title: ${form.product} | Ethiopian Occasion Wear by NAROK DESIGN\nKeywords: ${form.keywords}`); }
+  function generateBrief() { const active = data.orders.filter((item) => !["complete", "refunded"].includes(item.status)).length; const pending = data.bespoke.filter((item) => !["complete", "declined"].includes(item.status)).length; const low = data.products.filter((item) => item.status === "active" && !item.madeToOrder && item.stock < 3).length; setBrief(`This week: ${active} active client order${active === 1 ? "" : "s"}, ${pending} bespoke request${pending === 1 ? "" : "s"} needing attention, and ${low} low-stock catalogue piece${low === 1 ? "" : "s"}. The newsletter audience is ${data.subscriberCount}. Review deadlines first, then stock and client follow-ups.`); }
+  return <><section className="ai-hero"><p>✦ GUIDED DRAFT STUDIO</p><h2>Draft with speed.<br />Publish with judgement.</h2><span>This workspace creates structured first drafts and evidence-based summaries. Nothing is published or changed automatically.</span><div><small>MODE<strong>Human approved</strong></small><small>SCOPE<strong>Copy & insights</strong></small></div></section><div className="ai-grid"><form className="admin-card ai-form" onSubmit={generate}><div className="card-title"><p>PRODUCT COPY</p><span>FIRST DRAFT</span></div><label>Product<input value={form.product} onChange={(e) => setForm({ ...form, product: e.target.value })} /></label><label>Tone<input value={form.tone} onChange={(e) => setForm({ ...form, tone: e.target.value })} /></label><label className="wide">Keywords<textarea value={form.keywords} onChange={(e) => setForm({ ...form, keywords: e.target.value })} /></label><label>Materials<textarea value={form.materials} onChange={(e) => setForm({ ...form, materials: e.target.value })} /></label><label>Audience<textarea value={form.audience} onChange={(e) => setForm({ ...form, audience: e.target.value })} /></label><label className="wide">Notes<textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} /></label><button className="primary-button wide" type="submit">✦ Generate draft</button></form><div className="ai-side"><article className="admin-card weekly-brief" aria-live="polite"><div className="card-title"><p>WEEKLY BRIEF</p><span>EVIDENCE FIRST</span></div><p>Reads the catalogue, order, enquiry and audience totals already available to the dashboard.</p>{brief ? <p className="brief-output">{brief}</p> : <button className="primary-button" type="button" onClick={generateBrief}>Generate brief</button>}</article><article className="admin-card"><p className="card-kicker">REVIEW GUARDRAILS</p><ul><li>Drafts stay inside this screen until you copy them.</li><li>Prices, stock and client records are never modified.</li><li>Check cultural details and claims before publishing.</li></ul></article><article className="admin-card draft-output" aria-live="polite"><p className="card-kicker">DRAFT OUTPUT</p>{draft ? <><p>{draft}</p><button className="text-button" onClick={() => void navigator.clipboard.writeText(draft)}>Copy draft</button></> : <Empty icon="✦" title="Ready when you are" body="Add your product details and generate a reviewable first draft." />}</article></div></div></>;
 }
 
 function Settings({ settings, act }: { settings: Record<string, string>; act: (payload: Record<string, unknown>, success: string) => Promise<boolean> }) {
   const [form, setForm] = useState({ storeName: settings.storeName ?? "NAROK DESIGN", announcement: settings.announcement ?? "Designed in Addis Ababa · Worldwide delivery", shippingThresholdEtb: settings.shippingThresholdEtb ?? "30000", currency: settings.currency ?? "ETB" });
-  return <div className="settings-layout"><article className="settings-note"><p className="card-kicker">STOREFRONT DETAILS</p><h2>Small details set the tone.</h2><p>Keep public-facing store information clear, current and consistent. These values are persisted for future storefront integrations.</p></article><form className="admin-card settings-form" onSubmit={(event) => { event.preventDefault(); void act({ action: "settings.update", ...form }, "Store settings saved."); }}><label>Store name<input value={form.storeName} onChange={(event) => setForm({ ...form, storeName: event.target.value })} /></label><label>Announcement<textarea value={form.announcement} onChange={(event) => setForm({ ...form, announcement: event.target.value })} /></label><div><label>Shipping threshold (ETB)<input inputMode="numeric" value={form.shippingThresholdEtb} onChange={(event) => setForm({ ...form, shippingThresholdEtb: event.target.value })} /></label><label>Primary currency<select value={form.currency} onChange={(event) => setForm({ ...form, currency: event.target.value })}><option>ETB</option><option>USD</option></select></label></div><button className="primary-button" type="submit">Save settings</button></form></div>;
+  return <div className="settings-layout"><article className="settings-note"><p className="card-kicker">STOREFRONT DETAILS</p><h2>Small details set the tone.</h2><p>Keep public-facing store information clear, current and consistent. Saving here updates the settings used by the public storefront.</p></article><form className="admin-card settings-form" onSubmit={(event) => { event.preventDefault(); void act({ action: "settings.update", ...form }, "Store settings saved."); }}><label>Store name<input value={form.storeName} onChange={(event) => setForm({ ...form, storeName: event.target.value })} /></label><label>Announcement<textarea value={form.announcement} onChange={(event) => setForm({ ...form, announcement: event.target.value })} /></label><div><label>Shipping threshold (ETB)<input inputMode="numeric" value={form.shippingThresholdEtb} onChange={(event) => setForm({ ...form, shippingThresholdEtb: event.target.value })} /></label><label>Primary currency<select value={form.currency} onChange={(event) => setForm({ ...form, currency: event.target.value })}><option>ETB</option><option>USD</option></select></label></div><button className="primary-button" type="submit">Save settings</button></form></div>;
 }
 
 function ProductModal({ close, act }: { close: () => void; act: (payload: Record<string, unknown>, success: string) => Promise<boolean> }) {

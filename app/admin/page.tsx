@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { isAdminEmail, requireChatGPTUser } from "../chatgpt-auth";
 import AdminDashboard from "./AdminDashboard";
-import "./admin.css";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Admin Atelier — NAROK DESIGN", robots: { index: false, follow: false } };

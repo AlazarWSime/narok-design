@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 type Session = { authenticated: boolean; isAdmin: boolean; displayName: string | null };
@@ -22,7 +23,7 @@ export default function ProfileControl({ language = "en" }: { language?: "en" | 
   const label = session?.isAdmin ? adminLabel : session?.authenticated ? accountLabel : signInLabel;
   const content = <><span className="profile-glyph" aria-hidden="true" /><span className="profile-copy">{label}{session?.authenticated && session.displayName ? <small>{session.displayName}</small> : null}</span></>;
 
-  if (session?.isAdmin) return <a className="profile-control admin-profile-link" href="/admin" aria-label={adminLabel}>{content}</a>;
-  if (session?.authenticated) return <a className="profile-control" href="/account" aria-label={accountLabel}>{content}</a>;
+  if (session?.isAdmin) return <Link className="profile-control admin-profile-link" href="/admin" aria-label={adminLabel}>{content}</Link>;
+  if (session?.authenticated) return <Link className="profile-control" href="/account" aria-label={accountLabel}>{content}</Link>;
   return <a className="profile-control" href="/signin-with-chatgpt?return_to=%2Faccount" aria-label={signInLabel}>{content}</a>;
 }
