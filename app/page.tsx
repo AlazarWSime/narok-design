@@ -8,7 +8,7 @@ import ProductGrid from "./components/ProductGrid";
 import ProfileControl from "./components/ProfileControl";
 import SearchOverlay from "./components/SearchOverlay";
 import { useSiteState } from "./components/SiteState";
-import { Category } from "./data/catalog";
+import { Category, matchesProductSearch } from "./data/catalog";
 import { usePanelFocus } from "./hooks/usePanelFocus";
 
 const copy = {
@@ -82,7 +82,7 @@ export default function Home() {
 
   const filteredProducts = useMemo(() => {
     const normalized = query.trim().toLowerCase();
-    return catalog.filter((product) => (category === "all" || product.category === category) && (!normalized || `${product.name.en} ${product.name.am} ${product.type.en} ${product.type.am} ${product.category} ${product.sku ?? ""}`.toLowerCase().includes(normalized)));
+    return catalog.filter((product) => (category === "all" || product.category === category) && matchesProductSearch(product, normalized));
   }, [catalog, category, query]);
 
   const closeMenu = useCallback(() => setMenuOpen(false), []);

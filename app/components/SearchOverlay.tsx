@@ -2,7 +2,7 @@
 
 import { FormEvent, useMemo, useRef } from "react";
 import Link from "next/link";
-import type { Language, Product } from "../data/catalog";
+import { matchesProductSearch, type Language, type Product } from "../data/catalog";
 import { usePanelFocus } from "../hooks/usePanelFocus";
 import ProductGrid from "./ProductGrid";
 
@@ -29,7 +29,7 @@ export default function SearchOverlay({ open, onClose, language, catalog, loadin
   const filteredProducts = useMemo(() => {
     const normalized = query.trim().toLowerCase();
     if (!normalized) return catalog;
-    return catalog.filter((product) => `${product.name.en} ${product.name.am} ${product.type.en} ${product.type.am} ${product.category} ${product.sku ?? ""}`.toLowerCase().includes(normalized));
+    return catalog.filter((product) => matchesProductSearch(product, normalized));
   }, [catalog, query]);
 
   if (!open) return null;

@@ -3,7 +3,7 @@
 
 import { useCallback, useRef, useState } from "react";
 import Image from "next/image";
-import type { Category, Language, Product } from "../data/catalog";
+import { matchesProductSearch, type Category, type Language, type Product } from "../data/catalog";
 import { usePanelFocus } from "../hooks/usePanelFocus";
 import CustomOrderForm from "./CustomOrderForm";
 import ProductGrid from "./ProductGrid";
@@ -63,7 +63,7 @@ function ShopContent({ language, catalog, loading, query, onClearSearch }: { lan
   const [filter, setFilter] = useState<Category>("all");
   const labels: Record<Category, Record<Language, string>> = { all: { en: "All", am: "ሁሉም" }, women: { en: "Women", am: "ሴቶች" }, men: { en: "Men", am: "ወንዶች" }, children: { en: "Children", am: "ልጆች" } };
   const normalized = query.trim().toLowerCase();
-  const filtered = catalog.filter((product) => (filter === "all" || product.category === filter) && (!normalized || `${product.name.en} ${product.name.am} ${product.type.en} ${product.type.am} ${product.category} ${product.sku ?? ""}`.toLowerCase().includes(normalized)));
+  const filtered = catalog.filter((product) => (filter === "all" || product.category === filter) && matchesProductSearch(product, normalized));
   return <section className="inner-content shop-page" id="catalogue"><div className="inner-section-heading"><p className="eyebrow dark">{language === "en" ? "Catalogue" : "ካታሎግ"}</p><h2>{language === "en" ? "Shop every piece" : "ሁሉንም ልብስ ይመልከቱ"}</h2></div><div className="filter-row">{(["all", "women", "men", "children"] as Category[]).map((item) => <button className={filter === item ? "active" : ""} onClick={() => setFilter(item)} key={item}>{labels[item][language]}</button>)}</div>{query && <div className="search-summary"><span>{language === "en" ? `${filtered.length} result${filtered.length === 1 ? "" : "s"} for “${query}”` : `“${query}” · ${filtered.length}`}</span><button type="button" onClick={onClearSearch} aria-label={language === "en" ? "Clear search" : "ፍለጋውን አጽዳ"}>×</button></div>}<ProductGrid products={filtered} language={language} addLabel={language === "en" ? "Add to cart" : "ወደ ጋሪ ያክሉ"} sampleLabel={language === "en" ? "Original catalogue image" : "የካታሎግ ምስል"} madeToOrderLabel={language === "en" ? "Made to order" : "በትዕዛዝ"} noResultsLabel={language === "en" ? "No products match your search." : "ከፍለጋዎ ጋር የሚዛመድ ልብስ የለም።"} loading={loading} /></section>;
 }
 

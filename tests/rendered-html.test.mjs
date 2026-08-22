@@ -4,6 +4,7 @@ import test, { after } from "node:test";
 import { fileURLToPath } from "node:url";
 import { Miniflare } from "miniflare";
 import { normalizeNewsletterEmail, validateCustomOrder } from "../app/lib/submissionValidation.ts";
+import { matchesProductSearch } from "../app/data/catalog.ts";
 
 const root = new URL("../", import.meta.url);
 
@@ -177,9 +178,9 @@ test("keeps only a working search icon beside every burger menu", async () => {
   ]);
   assert.match(home, /className="header-left"><button className="header-action menu-trigger"[\s\S]*?<button type="button" className="header-action header-search-launch"/);
   assert.match(inner, /className="header-left"><button className="header-action menu-trigger"[\s\S]*?<button type="button" className="header-action header-search-launch"/);
-  assert.match(home, /product\.sku \?\? ""/);
+  assert.match(home, /matchesProductSearch\(product, normalized\)/);
   assert.match(inner, /<ShopContent[\s\S]*?query=\{query\}/);
-  assert.match(inner, /product\.name\.en[\s\S]*?product\.type\.am[\s\S]*?product\.sku/);
+  assert.match(inner, /matchesProductSearch\(product, normalized\)/);
   for (const source of [home, inner]) {
     assert.doesNotMatch(source, /header-search-trigger/);
     assert.doesNotMatch(source, /header-search-bar/);
@@ -209,6 +210,16 @@ test("opens a full-screen live catalogue from every search icon", async () => {
   assert.match(focusHook, /data-panel-autofocus/);
   assert.match(styles, /\.catalogue-search-overlay \{/);
   assert.match(styles, /body:has\(\.catalogue-search-overlay\)/);
+  assert.match(styles, /\.catalogue-search-results \.product-grid \{ grid-template-columns: repeat\(4,/);
+});
+
+test("keeps specific search results at catalogue-card size and avoids category substring matches", () => {
+  const women = { id: 1, category: "women", name: { en: "Addis Tibeb Kemis", am: "አዲስ ጥበብ ቀሚስ" }, type: { en: "Ready-made", am: "ዝግጁ" }, usd: 220, etb: 31000, image: "/narok-women.png", imagePosition: "left" };
+  const men = { ...women, id: 2, category: "men", name: { en: "Shewa Men's Ensemble", am: "የሸዋ ወንዶች ልብስ" } };
+  assert.equal(matchesProductSearch(women, "addis"), true);
+  assert.equal(matchesProductSearch(men, "addis"), false);
+  assert.equal(matchesProductSearch(women, "men"), false);
+  assert.equal(matchesProductSearch(men, "men"), true);
 });
 
 test("removes the announcement strip from every public storefront layout", async () => {
