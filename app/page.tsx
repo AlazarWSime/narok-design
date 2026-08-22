@@ -60,12 +60,10 @@ export default function Home() {
   const { language, setLanguage, selection, removeFromSelection, wishlist, catalog, catalogLoading, settings } = useSiteState();
   const [category, setCategory] = useState<Category>("all");
   const [menuOpen, setMenuOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [headerScrolled, setHeaderScrolled] = useState(false);
   const [query, setQuery] = useState("");
   const menuRef = useRef<HTMLElement>(null);
-  const searchRef = useRef<HTMLElement>(null);
   const selectionRef = useRef<HTMLElement>(null);
   const t = copy[language];
 
@@ -82,24 +80,22 @@ export default function Home() {
 
   const filteredProducts = useMemo(() => {
     const normalized = query.trim().toLowerCase();
-    return catalog.filter((product) => (category === "all" || product.category === category) && (!normalized || `${product.name.en} ${product.name.am} ${product.type.en} ${product.category}`.toLowerCase().includes(normalized)));
+    return catalog.filter((product) => (category === "all" || product.category === category) && (!normalized || `${product.name.en} ${product.name.am} ${product.type.en} ${product.type.am} ${product.category} ${product.sku ?? ""}`.toLowerCase().includes(normalized)));
   }, [catalog, category, query]);
 
   const closeMenu = useCallback(() => setMenuOpen(false), []);
-  const closeSearch = useCallback(() => setSearchOpen(false), []);
   const closeSelection = useCallback(() => setCartOpen(false), []);
-  const closePanels = useCallback(() => { closeMenu(); closeSearch(); closeSelection(); }, [closeMenu, closeSearch, closeSelection]);
-  const runSearch = (event: FormEvent) => { event.preventDefault(); setCategory("all"); setSearchOpen(false); document.getElementById("shop")?.scrollIntoView({ behavior: "smooth" }); };
+  const closePanels = useCallback(() => { closeMenu(); closeSelection(); }, [closeMenu, closeSelection]);
+  const runSearch = (event: FormEvent) => { event.preventDefault(); setCategory("all"); document.getElementById("shop")?.scrollIntoView({ behavior: "smooth" }); };
 
   usePanelFocus(menuOpen, menuRef, closeMenu);
-  usePanelFocus(searchOpen, searchRef, closeSearch);
   usePanelFocus(cartOpen, selectionRef, closeSelection);
 
   return (
     <main>
       <div className="announcement"><span>{settings.announcement}</span><span aria-hidden="true">✦</span><button onClick={() => setLanguage(language === "en" ? "am" : "en")}>{language === "en" ? "አማርኛ" : "English"}</button><span>{settings.currency} · {settings.shippingThresholdEtb.toLocaleString()} ETB+</span></div>
       <header className={`site-header ${headerScrolled ? "scrolled" : ""}`}>
-        <div className="header-left"><button className="header-action menu-trigger" onClick={() => setMenuOpen(true)} aria-label={t.menu}><span className="menu-lines"><i /><i /></span>{t.menu}</button><button className="header-action header-search-trigger" onClick={() => setSearchOpen(true)} aria-label={t.search}><span className="search-glyph" aria-hidden="true" /></button></div>
+        <div className="header-left"><button className="header-action menu-trigger" onClick={() => setMenuOpen(true)} aria-label={t.menu}><span className="menu-lines"><i /><i /></span>{t.menu}</button><form className="header-search-bar" role="search" onSubmit={runSearch}><label className="visually-hidden" htmlFor="home-catalogue-search">{t.panelSearch}</label><span className="search-glyph" aria-hidden="true" /><input id="home-catalogue-search" type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t.searchPlaceholder} autoComplete="off" />{query && <button type="button" onClick={() => setQuery("")} aria-label={language === "en" ? "Clear search" : "ፍለጋውን አጽዳ"}>×</button>}</form></div>
         <a className="wordmark" href="#home">{settings.storeName}</a>
         <div className="header-actions"><button className="header-action wishlist-header" onClick={() => document.getElementById("shop")?.scrollIntoView({ behavior: "smooth" })} aria-label={language === "en" ? `${wishlist.length} saved pieces` : `${wishlist.length} የተቀመጡ ልብሶች`}>♡ <span>{wishlist.length}</span></button><button className="header-action selection-action" data-mobile-label={t.bag} onClick={() => setCartOpen(true)}>{t.bag} <span>{selection.length}</span></button><ProfileControl language={language} /></div>
       </header>
@@ -125,9 +121,8 @@ export default function Home() {
 
       <footer><div className="footer-top"><h2>{t.newsletterTitle}</h2><NewsletterForm language={language} /></div><div className="footer-links">{t.footerGroups.map(([heading, ...links], groupIndex) => <div key={heading}><h3>{heading}</h3>{links.map((link) => <a href={groupIndex === 0 ? "#shop" : groupIndex === 1 ? "#about" : "#custom"} key={link}>{link}</a>)}</div>)}<div className="locale"><h3>Language / ቋንቋ</h3><button onClick={() => setLanguage("en")}><span>English</span><span>{language === "en" ? "●" : "○"}</span></button><button onClick={() => setLanguage("am")}><span>አማርኛ</span><span>{language === "am" ? "●" : "○"}</span></button><p className="price-note"><span>Prices</span><span>{settings.currency} · USD · ETB</span></p></div></div><div className="footer-bottom"><p>© 2026 {settings.storeName} · ADDIS ABABA</p><a className="wordmark" href="#home">{settings.storeName}</a><div><a href="#services">Delivery & Returns</a><a href="#custom">Custom Orders</a></div></div></footer>
 
-      <button className={`panel-backdrop ${menuOpen || searchOpen || cartOpen ? "visible" : ""}`} onClick={closePanels} aria-label="Close open panel" />
+      <button className={`panel-backdrop ${menuOpen || cartOpen ? "visible" : ""}`} onClick={closePanels} aria-label="Close open panel" />
       <aside ref={menuRef} className={`side-panel menu-panel ${menuOpen ? "open" : ""}`} aria-hidden={!menuOpen} role="dialog" aria-modal="true" aria-labelledby="menu-panel-title"><button className="panel-close" onClick={closeMenu} aria-label="Close menu">×</button><p className="panel-label" id="menu-panel-title">{t.panelMenu}</p><nav>{t.nav.map((item, index) => <a className={t.navHrefs[index] === "/admin" ? "menu-admin-entry" : undefined} href={t.navHrefs[index]} onClick={closeMenu} key={item}>{item}<span>0{index + 1}</span></a>)}</nav><div className="panel-meta"><button onClick={() => setLanguage(language === "en" ? "am" : "en")}>{language === "en" ? "አማርኛ" : "English"}</button><a href="#custom" onClick={closeMenu}>Addis Ababa</a></div></aside>
-      <aside ref={searchRef} className={`side-panel search-panel ${searchOpen ? "open" : ""}`} aria-hidden={!searchOpen} role="dialog" aria-modal="true" aria-labelledby="search-panel-title"><button className="panel-close" onClick={closeSearch} aria-label="Close search">×</button><p className="panel-label" id="search-panel-title">{t.panelSearch}</p><form onSubmit={runSearch}><label className="visually-hidden" htmlFor="catalogue-search">{t.panelSearch}</label><input id="catalogue-search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t.searchPlaceholder} /><button aria-label="Search">→</button></form><p className="suggestions">{t.suggestions}</p></aside>
       <aside ref={selectionRef} className={`side-panel cart-panel ${cartOpen ? "open" : ""}`} aria-hidden={!cartOpen} role="dialog" aria-modal="true" aria-labelledby="selection-panel-title"><button className="panel-close" onClick={closeSelection} aria-label="Close bag">×</button><p className="panel-label" id="selection-panel-title">{t.bagTitle} · {selection.length}</p>{selection.length === 0 ? <div className="empty-bag"><div><p>{t.emptyBag}</p><button onClick={() => { closeSelection(); document.getElementById("shop")?.scrollIntoView({ behavior: "smooth" }); }}>{t.continueShopping}</button></div></div> : <><div className="bag-items">{selection.map((productId, index) => { const item = catalog.find((product) => product.id === productId); return item ? <div key={`${item.id}-${index}`}><span>{String(index + 1).padStart(2, "0")}</span><p>{item.name[language]}<small>${item.usd} USD · {item.etb.toLocaleString()} ETB</small></p><button onClick={() => removeFromSelection(index)} aria-label={`Remove ${item.name[language]}`}>×</button></div> : null; })}</div><a className="checkout" href="/checkout">{t.checkout}</a><p className="checkout-note static-note">{t.checkoutDemo}</p></>}</aside>
     </main>
   );

@@ -1,7 +1,7 @@
 "use client";
 /* eslint-disable @next/next/no-html-link-for-pages -- vinext client navigation currently requires plain anchors */
 
-import { useCallback, useRef, useState } from "react";
+import { FormEvent, useCallback, useRef, useState } from "react";
 import Image from "next/image";
 import type { Category, Language, Product } from "../data/catalog";
 import { usePanelFocus } from "../hooks/usePanelFocus";
@@ -24,6 +24,7 @@ export default function InnerPage({ kind }: { kind: PageKind }) {
   const { language, setLanguage, selection, removeFromSelection, catalog, catalogLoading, settings } = useSiteState();
   const [menuOpen, setMenuOpen] = useState(false);
   const [selectionOpen, setSelectionOpen] = useState(false);
+  const [query, setQuery] = useState(() => typeof window === "undefined" ? "" : new URLSearchParams(window.location.search).get("q") ?? "");
   const menuRef = useRef<HTMLElement>(null);
   const selectionRef = useRef<HTMLElement>(null);
   const closeMenu = useCallback(() => setMenuOpen(false), []);
@@ -32,17 +33,23 @@ export default function InnerPage({ kind }: { kind: PageKind }) {
   usePanelFocus(selectionOpen, selectionRef, closeSelection);
   const copy = pageCopy[kind][language];
 
+  const runSearch = (event: FormEvent) => {
+    event.preventDefault();
+    if (kind === "shop") document.getElementById("catalogue")?.scrollIntoView({ behavior: "smooth" });
+    else window.location.assign(`/shop?q=${encodeURIComponent(query.trim())}#catalogue`);
+  };
+
   return (
     <main className="inner-page">
       <div className="announcement"><span>{settings.announcement}</span><span aria-hidden="true">✦</span><button onClick={() => setLanguage(language === "en" ? "am" : "en")}>{language === "en" ? "አማርኛ" : "English"}</button><span>{settings.currency} · {settings.shippingThresholdEtb.toLocaleString()} ETB+</span></div>
       <header className="site-header page-header scrolled">
-        <div className="header-left"><button className="header-action menu-trigger" onClick={() => setMenuOpen(true)} aria-label={language === "en" ? "Menu" : "ምናሌ"}><span className="menu-lines"><i /><i /></span>{language === "en" ? "Menu" : "ምናሌ"}</button><a className="header-action header-search-trigger" href="/shop#catalogue" aria-label={language === "en" ? "Search" : "ፈልግ"}><span className="search-glyph" aria-hidden="true" /></a></div>
+        <div className="header-left"><button className="header-action menu-trigger" onClick={() => setMenuOpen(true)} aria-label={language === "en" ? "Menu" : "ምናሌ"}><span className="menu-lines"><i /><i /></span>{language === "en" ? "Menu" : "ምናሌ"}</button><form className="header-search-bar" role="search" onSubmit={runSearch}><label className="visually-hidden" htmlFor={`${kind}-catalogue-search`}>{language === "en" ? "Search the catalogue" : "ካታሎጉን ይፈልጉ"}</label><span className="search-glyph" aria-hidden="true" /><input id={`${kind}-catalogue-search`} type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={language === "en" ? "Search products…" : "ልብስ ይፈልጉ…"} autoComplete="off" />{query && <button type="button" onClick={() => setQuery("")} aria-label={language === "en" ? "Clear search" : "ፍለጋውን አጽዳ"}>×</button>}</form></div>
         <a className="wordmark" href="/">{settings.storeName}</a>
         <div className="header-actions"><button className="header-action selection-action" data-mobile-label={language === "en" ? "Cart" : "ጋሪ"} onClick={() => setSelectionOpen(true)}>{language === "en" ? "Cart" : "ጋሪ"} <span>{selection.length}</span></button><ProfileControl language={language} /></div>
       </header>
 
       <section className={`page-hero page-hero-${kind}`}><Image className="page-hero-image" src="/narok-women.png" alt="" fill priority sizes="100vw" /><div><p className="eyebrow">NAROK DESIGN · ADDIS ABABA</p><h1>{copy[1]}</h1><p>{copy[2]}</p></div><span>{copy[0]}</span></section>
-      {kind === "shop" && <ShopContent language={language} catalog={catalog} loading={catalogLoading} />}
+      {kind === "shop" && <ShopContent language={language} catalog={catalog} loading={catalogLoading} query={query} onClearSearch={() => setQuery("")} />}
       {kind === "collection" && <CollectionContent language={language} />}
       {kind === "custom" && <CustomContent language={language} />}
       {kind === "about" && <AboutContent language={language} />}
@@ -56,11 +63,12 @@ export default function InnerPage({ kind }: { kind: PageKind }) {
   );
 }
 
-function ShopContent({ language, catalog, loading }: { language: Language; catalog: Product[]; loading: boolean }) {
+function ShopContent({ language, catalog, loading, query, onClearSearch }: { language: Language; catalog: Product[]; loading: boolean; query: string; onClearSearch: () => void }) {
   const [filter, setFilter] = useState<Category>("all");
   const labels: Record<Category, Record<Language, string>> = { all: { en: "All", am: "ሁሉም" }, women: { en: "Women", am: "ሴቶች" }, men: { en: "Men", am: "ወንዶች" }, children: { en: "Children", am: "ልጆች" } };
-  const filtered = filter === "all" ? catalog : catalog.filter((product) => product.category === filter);
-  return <section className="inner-content shop-page" id="catalogue"><div className="inner-section-heading"><p className="eyebrow dark">{language === "en" ? "Catalogue" : "ካታሎግ"}</p><h2>{language === "en" ? "Shop every piece" : "ሁሉንም ልብስ ይመልከቱ"}</h2></div><div className="filter-row">{(["all", "women", "men", "children"] as Category[]).map((item) => <button className={filter === item ? "active" : ""} onClick={() => setFilter(item)} key={item}>{labels[item][language]}</button>)}</div><ProductGrid products={filtered} language={language} addLabel={language === "en" ? "Add to cart" : "ወደ ጋሪ ያክሉ"} sampleLabel={language === "en" ? "Original catalogue image" : "የካታሎግ ምስል"} madeToOrderLabel={language === "en" ? "Made to order" : "በትዕዛዝ"} noResultsLabel={language === "en" ? "No pieces match this filter." : "ከዚህ ማጣሪያ ጋር የሚዛመድ ልብስ የለም።"} loading={loading} /></section>;
+  const normalized = query.trim().toLowerCase();
+  const filtered = catalog.filter((product) => (filter === "all" || product.category === filter) && (!normalized || `${product.name.en} ${product.name.am} ${product.type.en} ${product.type.am} ${product.category} ${product.sku ?? ""}`.toLowerCase().includes(normalized)));
+  return <section className="inner-content shop-page" id="catalogue"><div className="inner-section-heading"><p className="eyebrow dark">{language === "en" ? "Catalogue" : "ካታሎግ"}</p><h2>{language === "en" ? "Shop every piece" : "ሁሉንም ልብስ ይመልከቱ"}</h2></div><div className="filter-row">{(["all", "women", "men", "children"] as Category[]).map((item) => <button className={filter === item ? "active" : ""} onClick={() => setFilter(item)} key={item}>{labels[item][language]}</button>)}</div>{query && <div className="search-summary"><span>{language === "en" ? `${filtered.length} result${filtered.length === 1 ? "" : "s"} for “${query}”` : `“${query}” · ${filtered.length}`}</span><button type="button" onClick={onClearSearch} aria-label={language === "en" ? "Clear search" : "ፍለጋውን አጽዳ"}>×</button></div>}<ProductGrid products={filtered} language={language} addLabel={language === "en" ? "Add to cart" : "ወደ ጋሪ ያክሉ"} sampleLabel={language === "en" ? "Original catalogue image" : "የካታሎግ ምስል"} madeToOrderLabel={language === "en" ? "Made to order" : "በትዕዛዝ"} noResultsLabel={language === "en" ? "No products match your search." : "ከፍለጋዎ ጋር የሚዛመድ ልብስ የለም።"} loading={loading} /></section>;
 }
 
 function CollectionContent({ language }: { language: Language }) {
