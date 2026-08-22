@@ -36,9 +36,9 @@ export default function InnerPage({ kind }: { kind: PageKind }) {
     <main className="inner-page">
       <div className="announcement"><span>{settings.announcement}</span><span aria-hidden="true">✦</span><button onClick={() => setLanguage(language === "en" ? "am" : "en")}>{language === "en" ? "አማርኛ" : "English"}</button><span>{settings.currency} · {settings.shippingThresholdEtb.toLocaleString()} ETB+</span></div>
       <header className="site-header page-header scrolled">
-        <button className="header-action menu-trigger" onClick={() => setMenuOpen(true)} aria-label={language === "en" ? "Menu" : "ምናሌ"}><span className="menu-lines"><i /><i /></span>{language === "en" ? "Menu" : "ምናሌ"}</button>
+        <div className="header-left"><button className="header-action menu-trigger" onClick={() => setMenuOpen(true)} aria-label={language === "en" ? "Menu" : "ምናሌ"}><span className="menu-lines"><i /><i /></span>{language === "en" ? "Menu" : "ምናሌ"}</button><a className="header-action header-search-trigger" href="/shop#catalogue" aria-label={language === "en" ? "Search" : "ፈልግ"}><span className="search-glyph" aria-hidden="true" /></a></div>
         <a className="wordmark" href="/">{settings.storeName}</a>
-        <div className="header-actions"><a className="header-action search-action" href="/shop#catalogue">{language === "en" ? "Search" : "ፈልግ"}</a><button className="header-action selection-action" data-mobile-label={language === "en" ? "Selection" : "ምርጫ"} onClick={() => setSelectionOpen(true)}>{language === "en" ? "Selection" : "ምርጫ"} <span>{selection.length}</span></button><ProfileControl language={language} /></div>
+        <div className="header-actions"><button className="header-action selection-action" data-mobile-label={language === "en" ? "Selection" : "ምርጫ"} onClick={() => setSelectionOpen(true)}>{language === "en" ? "Selection" : "ምርጫ"} <span>{selection.length}</span></button><ProfileControl language={language} /></div>
       </header>
 
       <section className={`page-hero page-hero-${kind}`}><Image className="page-hero-image" src="/narok-women.png" alt="" fill priority sizes="100vw" /><div><p className="eyebrow">NAROK DESIGN · ADDIS ABABA</p><h1>{copy[1]}</h1><p>{copy[2]}</p></div><span>{copy[0]}</span></section>

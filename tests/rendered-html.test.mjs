@@ -168,6 +168,18 @@ test("includes a distinct admin section in every burger menu", async () => {
   assert.match(styles, /\.menu-panel nav a\.menu-admin-entry/);
 });
 
+test("places the search icon beside the burger menu instead of beside the wordmark", async () => {
+  const [home, inner, styles] = await Promise.all([
+    readFile(new URL("app/page.tsx", root), "utf8"),
+    readFile(new URL("app/components/InnerPage.tsx", root), "utf8"),
+    readFile(new URL("app/globals.css", root), "utf8"),
+  ]);
+  assert.match(home, /className="header-left"><button className="header-action menu-trigger"[\s\S]*?<button className="header-action header-search-trigger"/);
+  assert.match(inner, /className="header-left"><button className="header-action menu-trigger"[\s\S]*?<a className="header-action header-search-trigger"/);
+  for (const source of [home, inner]) assert.doesNotMatch(source, /search-action/);
+  assert.match(styles, /\.search-glyph::after/);
+});
+
 test("keeps the storefront public while protecting customer account pages", async () => {
   const anonymousHome = await request("/");
   assert.equal(anonymousHome.status, 200);

@@ -29,9 +29,10 @@ img { display: block; width: 100%; }
 .announcement button { padding: 0; color: #e6bc70; background: none; border: 0; font-size: 9px; text-transform: uppercase; letter-spacing: .1em; }
 .site-header { position: sticky; z-index: 15; top: 0; height: 92px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; margin-bottom: -92px; padding: 0 4vw; color: white; background: transparent; border-bottom: 1px solid rgba(255,255,255,.28); transition: color .25s, background-color .25s, border-color .25s, box-shadow .25s; }
 .wordmark { font-size: clamp(18px, 2.05vw, 30px); font-weight: 700; letter-spacing: .19em; text-decoration: none; white-space: nowrap; }
+.header-left { display: flex; align-items: center; justify-self: start; gap: 18px; }
 .header-actions { display: flex; justify-content: flex-end; align-items: center; gap: 18px; }
 .header-action { display: inline-flex; align-items: center; gap: 9px; padding: 8px 3px; color: inherit; background: none; border: 0; font-size: 10px; text-transform: uppercase; letter-spacing: .13em; }
-.header-action > span:not(.menu-lines) { min-width: 19px; height: 19px; display: inline-grid; place-items: center; border: 1px solid currentColor; border-radius: 50%; font-size: 8px; }
+.header-action > span:not(.menu-lines):not(.search-glyph) { min-width: 19px; height: 19px; display: inline-grid; place-items: center; border: 1px solid currentColor; border-radius: 50%; font-size: 8px; }
 .profile-control { min-width: 34px; display: inline-flex; align-items: center; gap: 9px; padding: 4px 0 4px 15px; color: inherit; border-left: 1px solid currentColor; text-decoration: none; }
 .profile-glyph { position: relative; width: 31px; height: 31px; flex: 0 0 auto; display: block; border: 1px solid currentColor; border-radius: 50%; }
 .profile-glyph::before { content: ""; position: absolute; top: 7px; left: 50%; width: 7px; height: 7px; border: 1px solid currentColor; border-radius: 50%; transform: translateX(-50%); }
@@ -41,6 +42,9 @@ img { display: block; width: 100%; }
 .menu-trigger { justify-self: start; }
 .menu-lines { width: 19px; display: flex; flex-direction: column; gap: 5px; }
 .menu-lines i { height: 1px; display: block; background: currentColor; }
+.header-search-trigger { width: 32px; height: 32px; justify-content: center; padding: 0; text-decoration: none; }
+.search-glyph { position: relative; width: 13px; height: 13px; display: block; border: 1.4px solid currentColor; border-radius: 50%; }
+.search-glyph::after { content: ""; position: absolute; right: -5px; bottom: -3px; width: 6px; height: 1.4px; background: currentColor; transform: rotate(45deg); transform-origin: left center; }
 .site-header:hover, .site-header:focus-within, .site-header.scrolled { color: var(--ink); background: white; border-color: var(--line); box-shadow: 0 1px 0 rgba(33,21,15,.06); }
 
 .hero { position: relative; min-height: calc(100svh - 34px); overflow: hidden; color: white; background: #514031; }
@@ -250,11 +254,10 @@ footer h2 { max-width: 700px; font-size: clamp(38px, 4.5vw, 67px); }
   .announcement { height: 30px; justify-content: space-between; padding: 0 12px; font-size: 7px; }
   .announcement > span:nth-child(2), .announcement > span:last-child { display: none; }
   .site-header { height: 70px; margin-bottom: -70px; padding: 0 16px; }
+  .header-left { gap: 9px; }
   .menu-trigger { font-size: 0; }
   .menu-lines { width: 22px; }
   .header-actions { gap: 5px; }
-  .header-actions .search-action { font-size: 0; }
-  .header-actions .search-action::after { content: "⌕"; font-size: 20px; }
   .wishlist-header { display: none; }
   .header-actions .selection-action { font-size: 0; }
   .header-actions .selection-action::before { content: attr(data-mobile-label); font-size: 8px; }
