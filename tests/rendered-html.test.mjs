@@ -146,6 +146,20 @@ test("exposes the admin-aware profile session without trusting the client", asyn
   assert.match(control, /href="\/admin"/);
 });
 
+test("includes a distinct admin section in every burger menu", async () => {
+  const [home, inner, styles] = await Promise.all([
+    readFile(new URL("app/page.tsx", root), "utf8"),
+    readFile(new URL("app/components/InnerPage.tsx", root), "utf8"),
+    readFile(new URL("app/globals.css", root), "utf8"),
+  ]);
+  for (const menu of [home, inner]) {
+    assert.match(menu, /"\/admin"/);
+    assert.match(menu, /menu-admin-entry/);
+    assert.match(menu, /አስተዳዳሪ/);
+  }
+  assert.match(styles, /\.menu-panel nav a\.menu-admin-entry/);
+});
+
 test("keeps the storefront public while protecting customer account pages", async () => {
   const anonymousHome = await request("/");
   assert.equal(anonymousHome.status, 200);

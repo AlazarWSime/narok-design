@@ -159,6 +159,7 @@ footer h2 { max-width: 700px; font-size: clamp(38px, 4.5vw, 67px); }
 .panel-label { margin: 40px 0 50px; color: #75695f; font-size: 8px; text-transform: uppercase; letter-spacing: .19em; }
 .menu-panel nav { display: flex; flex-direction: column; }
 .menu-panel nav a { display: flex; justify-content: space-between; align-items: center; padding: 17px 0; border-bottom: 1px solid var(--line); text-decoration: none; font-family: var(--serif); font-size: 18px; }
+.menu-panel nav a.menu-admin-entry { margin-top: 20px; border-top: 1px solid var(--line); color: var(--terracotta); }
 .menu-panel nav span { color: #998c80; font-family: Arial, sans-serif; font-size: 8px; }
 .panel-meta { position: absolute; right: 54px; bottom: 46px; left: 54px; display: flex; justify-content: space-between; gap: 15px; }
 .panel-meta button, .panel-meta a { padding: 0; background: none; border: 0; font-size: 9px; text-transform: uppercase; letter-spacing: .13em; }
